@@ -2,6 +2,7 @@
 
 *Tail.NET* aims to be a equivalent of the famous unix tail tool for Windows systems.
 
+> **Disclaimer**: *Tail.NET* is still work in progress in a very early stage!
 
 ## Planned features
 
