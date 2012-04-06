@@ -2,7 +2,7 @@
 
 namespace Tail
 {
-    class ContentEventArgs : EventArgs
+    public class ContentEventArgs : EventArgs
     {
         public ContentEventArgs(string fullName, string addedContent)
         {

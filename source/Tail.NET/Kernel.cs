@@ -1,44 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
+using Tail.Processors;
 
 namespace Tail
 {
-    class Kernel : IDisposable
+    internal class Kernel : IDisposable
     {
         private readonly List<FileNotificationService> watchers = new List<FileNotificationService>();
 
+        private readonly IProcessor[] processors;
+
         private bool disposed;
 
-        public Kernel(params string[] paths)
+        public Kernel(IProcessor[] processors, string[] paths, string filter = "*.*")
         {
             if (paths == null)
                 throw new ArgumentNullException("paths");
 
+            if (processors == null)
+                throw new ArgumentNullException("processors");
+
+            this.processors = processors;
+
             foreach (string path in paths)
             {
-                var info = new FileInfo(path);
-                FileNotificationService watcher = null;
-
-                if (info.Attributes.HasFlag(FileAttributes.Directory))
-                {
-                    DirectoryInfo directory = new DirectoryInfo(path);
-
-                    if (directory.Exists)
-                    {
-                        watcher = new FileNotificationService(directory, "*.txt");
-                    }
-                }
-                else if (info.Exists)
-                {
-                    watcher = new FileNotificationService(info);
-                }
+                FileNotificationService watcher = this.CreateWatcher(path, filter);
 
                 if (watcher != null)
                 {
-                    watcher.ContentAdded += ConsoleWriter.OnContentAdded;
                     this.watchers.Add(watcher);
                 }
             }
@@ -64,6 +54,36 @@ namespace Tail
 
                 this.disposed = true;
             }
+        }
+
+        private FileNotificationService CreateWatcher(string path, string filter = "*.*")
+        {
+            var info = new FileInfo(path);
+            FileNotificationService watcher = null;
+
+            if (info.Attributes.HasFlag(FileAttributes.Directory))
+            {
+                DirectoryInfo directory = new DirectoryInfo(path);
+
+                if (directory.Exists)
+                {
+                    watcher = new FileNotificationService(directory, filter);
+                }
+            }
+            else if (info.Exists)
+            {
+                watcher = new FileNotificationService(info);
+            }
+
+            if (watcher != null)
+            {
+                foreach (IProcessor processor in this.processors)
+                {
+                    watcher.ContentAdded += processor.OnContentAdded;
+                }
+            }
+
+            return watcher;
         }
     }
 }

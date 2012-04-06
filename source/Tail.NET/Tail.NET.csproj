@@ -46,10 +46,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConsoleWriter.cs" />
+    <Compile Include="Processors\ConsoleWriter.cs" />
     <Compile Include="ContentEventArgs.cs" />
     <Compile Include="FileNotificationService.cs" />
     <Compile Include="Kernel.cs" />
+    <Compile Include="Processors\Helper.cs" />
+    <Compile Include="Processors\IProcessor.cs" />
+    <Compile Include="Processors\MetricsEventArgs.cs" />
+    <Compile Include="Processors\W3CParser.cs" />
+    <Compile Include="Processors\W3CProcessor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Service.cs">
@@ -69,6 +74,9 @@
     <EmbeddedResource Include="Service.resx">
       <DependentUpon>Service.cs</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Output\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

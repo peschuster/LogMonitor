@@ -149,10 +149,9 @@ namespace Tail
 
             try
             {
-                stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
 
-
-                if (position > stream.Length)
+                if (position >= stream.Length)
                 {
                     position = stream.Length;
 

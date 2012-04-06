@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Tail
+namespace Tail.Processors
 {
-    class ConsoleWriter
+    internal class ConsoleWriter : IProcessor
     {
-        private static string lastName = null;
+        private string lastName = null;
 
-        public static void OnContentAdded(object sender, ContentEventArgs e)
+        public void OnContentAdded(object sender, ContentEventArgs e)
         {
             if (lastName != e.FullName)
             {

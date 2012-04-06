@@ -1,8 +1,8 @@
-# Tail.NET
+# LogMonitor
 
-*Tail.NET* aims to be a equivalent of the famous unix tail tool for Windows systems.
+*LogMonitor* aims to be a combination of *logtail* and *loggster*.
 
-> **Disclaimer**: *Tail.NET* is still work in progress in a very early stage!
+> **Disclaimer**: *LogMonitor* is still work in progress in a very early stage!
 
 ## Planned features
 
@@ -12,7 +12,7 @@
 
 ## Build
 
-How to build *Tail.NET*:
+How to build *LogMonitor*:
  
 1. Go to `\build\` directory
 2. Execute `go.bat`

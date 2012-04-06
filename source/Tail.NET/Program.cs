@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.ServiceProcess;
+using Tail.Processors;
 
 namespace Tail
 {
@@ -9,11 +8,25 @@ namespace Tail
     {
         public static void Main()
         {
-            using (var k = new Kernel(@"H:\Csharp\github\Tail.NET\test\"))
+            IProcessor[] processors = new IProcessor[]
             {
-                Console.ReadLine();
+                new ConsoleWriter(),
+            };
 
-                GC.KeepAlive(k);
+            if (!Environment.UserInteractive)
+            {
+                // Startup as service.
+                
+                ServiceBase.Run(new Service());
+            }
+            else
+            {
+                // Startup as application
+
+                using (var k = new Kernel(processors, new [] { @"H:\Csharp\github\Tail.NET\test\" }))
+                {
+                    Console.ReadLine();
+                }
             }
         }
     }

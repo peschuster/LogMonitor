@@ -14,7 +14,7 @@
 	</ItemGroup>
 
 	<ItemGroup Label="Solutions to build">
-		<SolutionToBuild Include="$(SourceDir)/Tail.NET.sln" />
+		<SolutionToBuild Include="$(SourceDir)/LogMonitor.sln" />
 	</ItemGroup>
 
 	<Target Name="build">
