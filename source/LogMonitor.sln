@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tail.NET", "Tail.NET\Tail.NET.csproj", "{CBEE6E7E-335F-45D3-A03D-1C9AAAA32050}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogMonitor", "LogMonitor\LogMonitor.csproj", "{CBEE6E7E-335F-45D3-A03D-1C9AAAA32050}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

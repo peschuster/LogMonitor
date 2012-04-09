@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 
-namespace Tail.Processors
+namespace LogMonitor.Processors
 {
     internal class W3CFieldConfiguration
     {

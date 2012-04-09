@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Tail.Processors
+namespace LogMonitor.Processors
 {
     class MetricsEventArgs : EventArgs
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Tail
+namespace LogMonitor
 {
     internal class FileNotificationService : IDisposable
     {        

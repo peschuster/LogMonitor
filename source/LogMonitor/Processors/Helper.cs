@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.IO;
 
-namespace Tail.Processors
+namespace LogMonitor.Processors
 {
     internal static class Helper
     {

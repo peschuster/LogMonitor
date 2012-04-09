@@ -8,8 +8,8 @@
     <ProjectGuid>{CBEE6E7E-335F-45D3-A03D-1C9AAAA32050}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Tail</RootNamespace>
-    <AssemblyName>tail</AssemblyName>
+    <RootNamespace>LogMonitor</RootNamespace>
+    <AssemblyName>LogMonitor</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -31,7 +31,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>Tail.Program</StartupObject>
+    <StartupObject>LogMonitor.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

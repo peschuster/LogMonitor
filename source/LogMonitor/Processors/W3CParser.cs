@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Tail.Processors
+namespace LogMonitor.Processors
 {
     public class W3CParser
     {

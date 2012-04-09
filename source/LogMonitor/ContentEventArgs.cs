@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Tail
+namespace LogMonitor
 {
     public class ContentEventArgs : EventArgs
     {

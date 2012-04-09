@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Tail.Processors;
+using LogMonitor.Processors;
 
-namespace Tail
+namespace LogMonitor
 {
     internal class Kernel : IDisposable
     {

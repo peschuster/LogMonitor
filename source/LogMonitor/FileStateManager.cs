@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 
-namespace Tail
+namespace LogMonitor
 {
     internal class FileStateManager : IDisposable
     {

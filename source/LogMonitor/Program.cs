@@ -1,7 +1,7 @@
 ﻿using System;
-using Tail.Processors;
+using LogMonitor.Processors;
 
-namespace Tail
+namespace LogMonitor
 {
     public static class Program
     {
