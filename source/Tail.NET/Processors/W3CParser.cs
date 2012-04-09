@@ -1,27 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Tail.Processors
 {
     public class W3CParser
     {
-        private readonly Dictionary<string, Dictionary<string, int>> cache = new Dictionary<string, Dictionary<string, int>>();
+        private readonly FileHandler io;
 
-        public string[] GetLines(string content)
+        private readonly W3CFieldConfiguration configuration;
+
+        public W3CParser ()
         {
-            return Helper.SplitLines(content);
+            this.io = new FileHandler();
+            this.configuration = new W3CFieldConfiguration(this.io);
         }
 
         public Dictionary<string, List<string>> GetFields(string filename, string content, string[] fieldNames)
         {
-            string[] lines = this.GetLines(content);
+            string[] lines = Helper.SplitLines(content);
 
-            var configuration = this.GetFieldConfiguration(filename, lines);
+            var configuration = this.configuration.Get(filename, lines);
 
             var result = new Dictionary<string, List<string>>();
 
+            // No configuration? -> nothing to read!
+            if (configuration == null)
+                return result;
+
+            // Initialize result data.
             foreach (string fieldName in fieldNames)
             {
                 result.Add(fieldName, new List<string>());
@@ -33,64 +40,16 @@ namespace Tail.Processors
 
                 foreach (string fieldName in fieldNames)
                 {
-                    if (!configuration.ContainsKey(fieldName))
+                    if (!configuration.Contains(fieldName))
                         continue;
 
-                    int index = configuration[fieldName];
+                    int index = Array.IndexOf(configuration, fieldName);
 
-                    if (fieldValues.Length > index)
+                    if (fieldValues.Length < index)
                     {
                         result[fieldName].Add(fieldValues[index]);
                     }
                 }
-            }
-
-            return result;
-        }
-
-        public Dictionary<string, int> GetFieldConfiguration(string filename, string[] lines)
-        {
-            if (!this.cache.ContainsKey(filename))
-            {
-                var configuration = this.ReadFieldConfiguration(lines);
-
-                if (configuration == null || configuration.Count == 0)
-                {
-                    string content = Helper.ReadFile(filename);
-
-                    string[] allLines = this.GetLines(content);
-                    
-                    configuration = this.ReadFieldConfiguration(allLines);
-                }
-
-                this.cache.Add(filename, configuration);
-            }
-
-            return this.cache[filename];
-        }
-
-        private Dictionary<string, int> ReadFieldConfiguration(string[] lines)
-        {
-            var result = new Dictionary<string, int>();
-
-            foreach (string line in lines)
-            {
-                if (string.IsNullOrWhiteSpace(line) || !line.Trim().StartsWith("#Fields:"))
-                    continue;
-
-                string cleaned = line
-                    .Replace("#", string.Empty)
-                    .Replace("Fields:", string.Empty)
-                    .Trim();
-
-                string[] parts = cleaned.Split(' ');
-
-                for (int index = 0; index < parts.Length; index++)
-                {
-                    result.Add(parts[index], index);
-                }
-
-                break;
             }
 
             return result;

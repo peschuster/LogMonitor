@@ -1,20 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Tail
 {
     internal class FileNotificationService : IDisposable
-    {
-        private readonly Dictionary<string, long> positions = new Dictionary<string, long>();
+    {        
+        private readonly FileHandler io;
+
+        private FileStateManager states;
 
         private FileSystemWatcher watcher;
 
         private bool disposed;
 
+        private readonly bool fullLines;
+
         public event EventHandler<ContentEventArgs> ContentAdded;
 
-        public FileNotificationService(DirectoryInfo directory, string filter = "*.*")
+        public FileNotificationService(DirectoryInfo directory, bool fullLines = false, string filter = "*.*")
         {
             if (directory == null)
                 throw new ArgumentNullException("directory");
@@ -22,13 +27,17 @@ namespace Tail
             if (!directory.Exists)
                 throw new ArgumentException("Directory does not exist.");
 
+            this.fullLines = fullLines;
+
             FileSystemWatcher watcher = new FileSystemWatcher(directory.FullName, filter);
             IEnumerable<FileInfo> files = directory.EnumerateFiles(filter);
+            
+            this.io = new FileHandler();
 
             this.Init(watcher, files);
         }
 
-        public FileNotificationService(FileInfo file)
+        public FileNotificationService(FileInfo file, bool fullLines = false)
         {
             if (file == null)
                 throw new ArgumentNullException("file");
@@ -36,7 +45,11 @@ namespace Tail
             if (!file.Exists)
                 throw new ArgumentException("File does not exist.");
 
+            this.fullLines = fullLines;
+
             FileSystemWatcher watcher = new FileSystemWatcher(file.DirectoryName, file.Name);
+
+            this.io = new FileHandler();
 
             this.Init(watcher, new [] { file });
         }
@@ -52,9 +65,9 @@ namespace Tail
         {
             if (disposing && !this.disposed)
             {
+                this.states.Dispose();
+
                 this.watcher.Dispose();
-                
-                this.positions.Clear();
 
                 this.disposed = true;
             }
@@ -62,11 +75,7 @@ namespace Tail
 
         private void Init(FileSystemWatcher watcher, IEnumerable<FileInfo> files)
         {
-            // Add initial sizes
-            foreach (FileInfo file in files)
-            {
-                this.positions.Add(file.FullName, file.Length);
-            }
+            this.states = new FileStateManager(files);
 
             watcher.NotifyFilter = NotifyFilters.FileName | NotifyFilters.Size;
 
@@ -81,45 +90,9 @@ namespace Tail
             this.watcher = watcher;
         }
 
-        private void TriggerContentAdded(string fileName, string addedContent)
-        {
-            if (this.ContentAdded != null && !string.IsNullOrEmpty(addedContent))
-            {
-                this.ContentAdded(this, new ContentEventArgs(fileName, addedContent));
-            }
-        }
-
-        private long GetPosition(string fullPath)
-        {
-            if (this.positions.ContainsKey(fullPath))
-            {
-                return this.positions[fullPath];
-            }
-
-            return 0L;
-        }
-
-        private void UpdatePosition(string fullPath, long position)
-        {
-            if (this.positions.ContainsKey(fullPath))
-            {
-                this.positions[fullPath] = position;
-            }
-            else
-            {
-                this.positions.Add(fullPath, position);
-            }
-        }
-
         private void OnObjectRenamed(object sender, RenamedEventArgs e)
         {
-            if (this.positions.ContainsKey(e.OldFullPath))
-            {
-                long position = this.positions[e.OldFullPath];
-
-                this.positions.Remove(e.OldFullPath);
-                this.positions.Add(e.FullPath, position);
-            }
+            this.states.RenameFile(e.OldFullPath, e.FullPath);
         }
 
         private void OnObjectChanged(object sender, FileSystemEventArgs e)
@@ -128,53 +101,37 @@ namespace Tail
 
             if (e.ChangeType == WatcherChangeTypes.Created || e.ChangeType == WatcherChangeTypes.Changed)
             {   
-                long position = this.GetPosition(fileName);
+                long position = this.states.GetPosition(fileName);
+                long initialPosition = position;
 
-                string content = this.ReadFileContent(fileName, ref position);
+                string content = this.io.Read(fileName, ref position);
 
-                this.UpdatePosition(fileName, position);
+                if (this.fullLines)
+                {
+                    int lastLineBreak = Math.Max(content.LastIndexOf('\n'), content.LastIndexOf('\r'));
+
+                    if (position > (initialPosition + lastLineBreak))
+                    {
+                        position = initialPosition + lastLineBreak;
+                        content = content.Substring(0, Math.Min(content.LastIndexOf('\n'), content.LastIndexOf('\r')) + 1);
+                    }
+                }
+
+                this.states.UpdatePosition(fileName, position);
 
                 this.TriggerContentAdded(fileName, content);
             }
             else if (e.ChangeType == WatcherChangeTypes.Deleted)
             {
-                this.positions.Remove(e.FullPath);
+                this.states.Remove(e.FullPath);
             }
         }
 
-        private string ReadFileContent(string fileName, ref long position)
+        private void TriggerContentAdded(string fileName, string addedContent)
         {
-            string content;
-            Stream stream = null;
-
-            try
+            if (this.ContentAdded != null && addedContent != null && addedContent.Any(s => s != null))
             {
-                stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
-
-                if (position >= stream.Length)
-                {
-                    position = stream.Length;
-
-                    return null;
-                }
-
-                using (StreamReader reader = new StreamReader(stream))
-                {
-                    stream = null;
-
-                    reader.BaseStream.Seek(position, SeekOrigin.Begin);
-
-                    content = reader.ReadToEnd();
-
-                    position = reader.BaseStream.Position;
-                }
-
-                return content;
-            }
-            finally
-            {
-                if (stream != null)
-                    stream.Dispose();
+                this.ContentAdded(this, new ContentEventArgs(fileName, addedContent));
             }
         }
     }

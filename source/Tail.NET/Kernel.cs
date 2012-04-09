@@ -67,12 +67,12 @@ namespace Tail
 
                 if (directory.Exists)
                 {
-                    watcher = new FileNotificationService(directory, filter);
+                    watcher = new FileNotificationService(directory, true, filter);
                 }
             }
             else if (info.Exists)
             {
-                watcher = new FileNotificationService(info);
+                watcher = new FileNotificationService(info, true);
             }
 
             if (watcher != null)

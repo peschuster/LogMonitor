@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ServiceProcess;
 using Tail.Processors;
 
 namespace Tail
@@ -13,20 +12,9 @@ namespace Tail
                 new ConsoleWriter(),
             };
 
-            if (!Environment.UserInteractive)
+            using (var k = new Kernel(processors, new [] { @"H:\Csharp\github\Tail.NET\test\" }))
             {
-                // Startup as service.
-                
-                ServiceBase.Run(new Service());
-            }
-            else
-            {
-                // Startup as application
-
-                using (var k = new Kernel(processors, new [] { @"H:\Csharp\github\Tail.NET\test\" }))
-                {
-                    Console.ReadLine();
-                }
+                Console.ReadLine();
             }
         }
     }
