@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using LogMonitor.Processors;
 
-namespace LogMonitor.Processors
+namespace LogMonitor.Output
 {
     internal class ConsoleWriter : IProcessor
     {

@@ -10,45 +10,34 @@ namespace LogMonitor.Processors
 
         private readonly W3CFieldConfiguration configuration;
 
-        public W3CParser ()
+        public W3CParser()
         {
             this.io = new FileHandler();
             this.configuration = new W3CFieldConfiguration(this.io);
         }
 
-        public Dictionary<string, List<string>> GetFields(string filename, string content, string[] fieldNames)
+        public Dictionary<string, string> GetFields(string filename, string line, string[] fieldNames)
         {
-            string[] lines = Helper.SplitLines(content);
+            var configuration = this.configuration.Get(filename, new[] { line });
 
-            var configuration = this.configuration.Get(filename, lines);
-
-            var result = new Dictionary<string, List<string>>();
+            var result = new Dictionary<string, string>();
 
             // No configuration? -> nothing to read!
             if (configuration == null)
                 return result;
 
-            // Initialize result data.
+            string[] fieldValues = line.Split(' ');
+
             foreach (string fieldName in fieldNames)
             {
-                result.Add(fieldName, new List<string>());
-            }
+                if (!configuration.Contains(fieldName))
+                    continue;
 
-            foreach (string line in lines)
-            {
-                string[] fieldValues = line.Split(' ');
+                int index = Array.IndexOf(configuration, fieldName);
 
-                foreach (string fieldName in fieldNames)
+                if (fieldValues.Length < index)
                 {
-                    if (!configuration.Contains(fieldName))
-                        continue;
-
-                    int index = Array.IndexOf(configuration, fieldName);
-
-                    if (fieldValues.Length < index)
-                    {
-                        result[fieldName].Add(fieldValues[index]);
-                    }
+                    result.Add(fieldName, fieldValues[index]);
                 }
             }
 

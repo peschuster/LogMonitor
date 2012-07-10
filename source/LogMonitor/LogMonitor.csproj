@@ -17,7 +17,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -25,7 +25,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\bin\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -35,7 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Configuration.Install" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Management" />
     <Reference Include="System.ServiceProcess" />
@@ -46,22 +46,43 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\Ouput\GraphiteElement.cs" />
+    <Compile Include="Configuration\Ouput\StatsDElement.cs" />
+    <Compile Include="Configuration\Ouput\TransportType.cs" />
+    <Compile Include="Configuration\OutputConfiguration.cs" />
+    <Compile Include="Configuration\W3CReaderConfiguration.cs" />
+    <Compile Include="Configuration\W3CReader\ParserElementCollection.cs" />
+    <Compile Include="Configuration\W3CReader\ParserElement.cs" />
     <Compile Include="FileHandler.cs" />
     <Compile Include="FileStateManager.cs" />
     <Compile Include="Output\ConsoleWriter.cs" />
     <Compile Include="ContentEventArgs.cs" />
     <Compile Include="FileNotificationService.cs" />
     <Compile Include="Kernel.cs" />
+    <Compile Include="Output\OutputManager.cs" />
     <Compile Include="Processors\Helper.cs" />
     <Compile Include="Processors\IProcessor.cs" />
     <Compile Include="Processors\MetricsEventArgs.cs" />
     <Compile Include="Processors\W3CFieldConfiguration.cs" />
+    <Compile Include="Processors\W3CLine.cs" />
     <Compile Include="Processors\W3CParser.cs" />
-    <Compile Include="Processors\W3CProcessor.cs" />
+    <Compile Include="Processors\W3CReader.cs" />
+    <Compile Include="Processors\W3CReaderFactory.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Configuration\LogMonitorConfiguration.xsd">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

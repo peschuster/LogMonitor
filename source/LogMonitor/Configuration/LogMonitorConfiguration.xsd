@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="LogMonitorConfiguration"
+  xmlns:tns="http://github.com/peschuster/LogMonitor/Configuration"
+  elementFormDefault="qualified"
+  targetNamespace="http://github.com/peschuster/LogMonitor/Configuration"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="w3cReaders" type="tns:LogMonitor.Configuration.W3CReadersConfiguration" />
+  <xs:complexType name="LogMonitor.Configuration.W3CReadersConfiguration">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="counters" type="tns:LogMonitor.Configuration.W3CReader.CounterElementCollection" />
+      <xs:element minOccurs="0" name="timings" type="tns:LogMonitor.Configuration.W3CReader.TimingElementCollection" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="LogMonitor.Configuration.W3CReader.CounterElementCollection">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="add" type="tns:LogMonitor.Configuration.W3CReader.ParserElement">
+      </xs:element>
+      <xs:element name="remove">
+        <xs:complexType>
+          <xs:attribute name="name" use="required" type="xs:string" />
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="clear">
+        <xs:complexType>
+          <!--tag is empty-->
+        </xs:complexType>
+      </xs:element>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="LogMonitor.Configuration.W3CReader.TimingElementCollection">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="add" type="tns:LogMonitor.Configuration.W3CReader.ParserElement">
+      </xs:element>
+      <xs:element name="remove">
+        <xs:complexType>
+          <xs:attribute name="name" use="required" type="xs:string" />
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="clear">
+        <xs:complexType>
+          <!--tag is empty-->
+        </xs:complexType>
+      </xs:element>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="LogMonitor.Configuration.W3CReader.ParserElement">
+    <xs:attribute name="name" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>The Name.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="key" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>The Key.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="fileMatch" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>The FileMatch.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="target" use="optional" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>The Target.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="pattern" use="optional" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>The value pattern.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="keyPatternTarget" use="optional" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>The key pattern target.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="keyPattern" use="optional" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>The key pattern.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  <xs:element name="output" type="tns:LogMonitor.Configuration.OutputConfiguration" />
+  <xs:complexType name="LogMonitor.Configuration.OutputConfiguration">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="graphite" type="tns:LogMonitor.Configuration.Output.GraphiteElement" />
+      <xs:element minOccurs="0" name="statsd" type="tns:LogMonitor.Configuration.Output.StatsDElement" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="LogMonitor.Configuration.Output.GraphiteElement">
+    <xs:attribute name="address" use="required" type="xs:string"></xs:attribute>
+    <xs:attribute name="port" use="required" type="xs:integer"></xs:attribute>
+    <xs:attribute name="transport" use="required" type="tns:LogMonitor.Configuration.Output.TransportType"></xs:attribute>
+  </xs:complexType>
+  <xs:complexType name="LogMonitor.Configuration.Output.StatsDElement">
+    <xs:attribute name="address" use="required" type="xs:string"></xs:attribute>
+    <xs:attribute name="port" use="required" type="xs:integer"></xs:attribute>
+  </xs:complexType>
+  <xs:simpleType name="LogMonitor.Configuration.Output.TransportType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Udp"/>
+      <xs:enumeration value="Tcp"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>

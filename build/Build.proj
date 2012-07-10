@@ -5,9 +5,12 @@
 	<PropertyGroup>
 		<BinDir>../bin</BinDir>
 		<SourceDir>../source</SourceDir>
+		<XunitPath>../Tools/xunit-1.9/xunit.runner.msbuild.dll</XunitPath>
 
 		<Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
 	</PropertyGroup>
+
+	<UsingTask AssemblyFile="$(XunitPath)" TaskName="Xunit.Runner.MSBuild.xunit"/>
 
 	<ItemGroup>
 		<BinFiles Include="$(BinDir)/**\*" />
@@ -29,6 +32,10 @@
 			Projects="@(SolutionToBuild->'%(FullPath)')"
 			Properties="Configuration=$(Configuration);OutputPath=$(BinDirAbs)"
 			ContinueOnError="false" />
+	</Target>
+
+	<Target Name="test" DependsOnTargets="build">
+		<xunit Assembly="$(BinDir)\LogMonitor.Test.dll" />
 	</Target>
 
 	<Target Name="clean">

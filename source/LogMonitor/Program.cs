@@ -1,5 +1,6 @@
 ﻿using System;
 using LogMonitor.Processors;
+using LogMonitor.Output;
 
 namespace LogMonitor
 {
