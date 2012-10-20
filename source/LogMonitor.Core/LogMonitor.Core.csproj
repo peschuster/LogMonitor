@@ -49,15 +49,18 @@
     <Compile Include="FileHandler.cs" />
     <Compile Include="FileNotificationService.cs" />
     <Compile Include="FileStateManager.cs" />
+    <Compile Include="Helpers\EnumerableExtensions.cs" />
+    <Compile Include="Helpers\ExceptionExtensions.cs" />
     <Compile Include="Processors\DefaultPreProcessor.cs" />
     <Compile Include="Processors\Helper.cs" />
     <Compile Include="Processors\IPreProcessor.cs" />
     <Compile Include="Processors\IProcessor.cs" />
     <Compile Include="Processors\Metric.cs" />
-    <Compile Include="Processors\PowerShellProcessor.cs" />
+    <Compile Include="Processors\PowershellProcessor.cs" />
     <Compile Include="Processors\W3CChange.cs" />
     <Compile Include="Processors\W3CFieldCache.cs" />
     <Compile Include="Processors\W3CFields.cs" />
+    <Compile Include="Processors\W3CHelper.cs" />
     <Compile Include="Processors\W3CProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

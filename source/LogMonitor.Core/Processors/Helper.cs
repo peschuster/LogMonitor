@@ -28,7 +28,6 @@ namespace LogMonitor.Processors
             {
                 stream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
 
-
                 using (StreamReader reader = new StreamReader(stream))
                 {
                     stream = null;

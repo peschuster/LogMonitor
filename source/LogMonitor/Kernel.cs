@@ -51,6 +51,9 @@ namespace LogMonitor
         {
             if (disposing && !this.disposed)
             {
+                if (this.manager != null)
+                    this.manager.Dispose();
+
                 foreach (var watcher in this.watchers)
                 {
                     watcher.Dispose();

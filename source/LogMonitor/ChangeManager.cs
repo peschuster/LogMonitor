@@ -8,28 +8,33 @@ using LogMonitor.Processors;
 
 namespace LogMonitor
 {
-    class ChangeManager
+    internal class ChangeManager : IDisposable
     {
         private readonly BlockingCollection<FileChange> inputQueue = new BlockingCollection<FileChange>();
 
-        private readonly BlockingCollection<Metric[]> outputQueue = new BlockingCollection<Metric[]>();
+        private readonly BlockingCollection<ResultContainer> outputQueue = new BlockingCollection<ResultContainer>();
 
         private readonly IProcessor[] processors;
 
-        private readonly CancellationToken cancellation;
+        private readonly CancellationTokenSource cancellation;
         
+        private readonly TaskFactory factory;
+
+        private bool disposed;
+
         public ChangeManager(IEnumerable<IProcessor> processors)
         {
             if (processors == null)
                 throw new ArgumentNullException("processors");
 
-            this.cancellation = new CancellationToken();
+            this.cancellation = new CancellationTokenSource();
 
             this.processors = processors.ToArray();
 
-            var factory = new TaskFactory(this.cancellation);
-            factory.StartNew(() => this.ProcessInput());
-            factory.StartNew(() => this.ProcessMetrics());
+            this.factory = new TaskFactory(this.cancellation.Token);
+            
+            this.factory.StartNew(() => this.ProcessInput(), TaskCreationOptions.LongRunning);
+            this.factory.StartNew(() => this.ProcessMetrics(), TaskCreationOptions.LongRunning);
         }
 
         public void Add(FileChange item)
@@ -37,11 +42,28 @@ namespace LogMonitor
             this.inputQueue.Add(item);
         }
 
+        public void Dispose()
+        {
+            this.Dispose(true);
+
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing && !this.disposed)
+            {
+                this.cancellation.Cancel();
+
+                this.disposed = true;
+            }
+        }
+
         private void ProcessInput()
         {
             while (!this.cancellation.IsCancellationRequested)
             {
-                FileChange item = this.inputQueue.Take(this.cancellation);
+                FileChange item = this.inputQueue.Take(this.cancellation.Token);
 
                 if (this.cancellation.IsCancellationRequested)
                     return;
@@ -53,8 +75,11 @@ namespace LogMonitor
                     this.processors.Length,
                     i => metrics[i] = this.processors[i].ParseLine(item));
 
-                this.outputQueue.Add(
-                    metrics.SelectMany(m => m).ToArray());
+                this.outputQueue.Add(new ResultContainer
+                {
+                    Change = item,
+                    Metrics = metrics.SelectMany(m => m).ToArray()
+                });
             }
         }
 
@@ -62,7 +87,7 @@ namespace LogMonitor
         {
             while (!this.cancellation.IsCancellationRequested)
             {
-                Metric[] metrics = this.outputQueue.Take(this.cancellation);
+                ResultContainer item = this.outputQueue.Take(this.cancellation.Token);
 
                 if (this.cancellation.IsCancellationRequested)
                     return;
