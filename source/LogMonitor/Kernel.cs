@@ -79,7 +79,7 @@ namespace LogMonitor
             {
                 foreach (IProcessor processor in this.processors)
                 {
-                    watcher.ContentAdded += processor.OnContentAdded;
+                    // watcher.ContentAdded += processor.OnContentAdded;
                 }
             }
 

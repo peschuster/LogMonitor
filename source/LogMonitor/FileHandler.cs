@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.IO;
 
 namespace LogMonitor
@@ -51,6 +48,11 @@ namespace LogMonitor
             }
         }
 
+        /// <summary>
+        /// Reads all lines from the specifed filename (deferred execution).
+        /// </summary>
+        /// <param name="filename">Path to the file to read.</param>
+        /// <returns></returns>
         public IEnumerable<string> ReadLines(string filename)
         {
             Stream stream = null;

@@ -6,7 +6,7 @@ using System.Linq;
 namespace LogMonitor
 {
     internal class FileNotificationService : IDisposable
-    {        
+    { 
         private readonly FileHandler io;
 
         private FileStateManager states;

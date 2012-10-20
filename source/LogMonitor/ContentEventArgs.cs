@@ -1,16 +1,16 @@
-﻿using System;
+using System;
 
 namespace LogMonitor
 {
     public class ContentEventArgs : EventArgs
     {
-        public ContentEventArgs(string fullName, string addedContent)
+        public ContentEventArgs(string fileName, string addedContent)
         {
-            this.FullName = fullName;
-            this.AddedContent = addedContent;
+            this.FileName = fileName;
+            this.AddedContent = addedContent;            
         }
 
-        public string FullName { get; private set; }
+        public string FileName { get; private set; }
 
         public string AddedContent { get; private set; }
     }

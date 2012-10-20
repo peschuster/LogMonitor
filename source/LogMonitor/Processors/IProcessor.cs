@@ -1,15 +1,19 @@
-﻿namespace LogMonitor.Processors
+﻿using System.Collections.Generic;
+
+namespace LogMonitor.Processors
 {
     /// <summary>
-    /// Processor for added content.
+    /// Processor for log file lines.
     /// </summary>
     public interface IProcessor
     {
+        bool IsMatch(string fileName);
+
         /// <summary>
-        /// Called when [content added].
+        /// Parses the specified lines and returns metrics.
         /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="LogMonitor.ContentEventArgs" /> instance containing the event data.</param>
-        void OnContentAdded(object sender, ContentEventArgs e);
+        /// <param name="change">File change.</param>
+        /// <returns></returns>
+        IEnumerable<Metric> ParseLine(FileChange change);
     }
 }

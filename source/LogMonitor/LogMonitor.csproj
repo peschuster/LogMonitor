@@ -46,30 +46,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Configuration\Ouput\GraphiteElement.cs" />
-    <Compile Include="Configuration\Ouput\StatsDElement.cs" />
-    <Compile Include="Configuration\Ouput\TransportType.cs" />
-    <Compile Include="Configuration\OutputConfiguration.cs" />
+    <Compile Include="ChangeManager.cs" />
     <Compile Include="Configuration\W3CReaderConfiguration.cs" />
     <Compile Include="Configuration\W3CReader\ParserElementCollection.cs" />
     <Compile Include="Configuration\W3CReader\ParserElement.cs" />
+    <Compile Include="ContentEventArgs.cs" />
+    <Compile Include="FileChange.cs" />
     <Compile Include="FileHandler.cs" />
     <Compile Include="FileStateManager.cs" />
-    <Compile Include="Output\ConsoleWriter.cs" />
-    <Compile Include="ContentEventArgs.cs" />
     <Compile Include="FileNotificationService.cs" />
     <Compile Include="Kernel.cs" />
-    <Compile Include="Output\OutputManager.cs" />
+    <Compile Include="Processors\GenericCsProcessor.cs" />
     <Compile Include="Processors\Helper.cs" />
     <Compile Include="Processors\IProcessor.cs" />
-    <Compile Include="Processors\MetricsEventArgs.cs" />
-    <Compile Include="Processors\W3CFieldConfiguration.cs" />
-    <Compile Include="Processors\W3CLine.cs" />
-    <Compile Include="Processors\W3CParser.cs" />
-    <Compile Include="Processors\W3CReader.cs" />
-    <Compile Include="Processors\W3CReaderFactory.cs" />
+    <Compile Include="Processors\Metric.cs" />
+    <Compile Include="Processors\W3CFields.cs" />
+    <Compile Include="Processors\W3CFieldCache.cs" />
+    <Compile Include="Processors\W3CChange.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Sequential.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
@@ -82,6 +78,9 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Output\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
