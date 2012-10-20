@@ -129,7 +129,7 @@ namespace LogMonitor
 
         private void TriggerContentAdded(string fileName, string addedContent)
         {
-            if (this.ContentAdded != null && addedContent != null && addedContent.Any(s => s != null))
+            if (this.ContentAdded != null && addedContent != null)
             {
                 this.ContentAdded(this, new ContentEventArgs(fileName, addedContent));
             }
