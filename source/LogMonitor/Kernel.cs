@@ -9,19 +9,19 @@ namespace LogMonitor
     {
         private readonly List<FileNotificationService> watchers = new List<FileNotificationService>();
 
-        private readonly IProcessor[] processors;
+        private readonly ChangeManager manager;
 
         private bool disposed;
 
-        public Kernel(IProcessor[] processors, string[] paths, string filter = "*.*")
+        public Kernel(IProcessor[] processors, string[] paths, IDictionary<string, IPreProcessor> preProcessors = null, string filter = "*.*")
         {
             if (paths == null)
                 throw new ArgumentNullException("paths");
 
             if (processors == null)
                 throw new ArgumentNullException("processors");
-
-            this.processors = processors;
+            
+            this.manager = new ChangeManager(processors);
 
             foreach (string path in paths)
             {
@@ -30,6 +30,12 @@ namespace LogMonitor
                 if (watcher != null)
                 {
                     this.watchers.Add(watcher);
+
+                    IPreProcessor preProcessor = preProcessors != null && preProcessors.ContainsKey(path)
+                        ? preProcessors[path]
+                        : new DefaultPreProcessor();
+
+                    watcher.ContentAdded += (object o, ContentEventArgs e) => this.manager.Add(preProcessor.Process(e.FileName, e.AddedContent));
                 }
             }
         }
@@ -73,14 +79,6 @@ namespace LogMonitor
             else if (info.Exists)
             {
                 watcher = new FileNotificationService(info, true);
-            }
-
-            if (watcher != null)
-            {
-                foreach (IProcessor processor in this.processors)
-                {
-                    // watcher.ContentAdded += processor.OnContentAdded;
-                }
             }
 
             return watcher;

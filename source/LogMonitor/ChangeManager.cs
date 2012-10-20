@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using LogMonitor.Processors;
 
 namespace LogMonitor
@@ -25,6 +26,10 @@ namespace LogMonitor
             this.cancellation = new CancellationToken();
 
             this.processors = processors.ToArray();
+
+            var factory = new TaskFactory(this.cancellation);
+            factory.StartNew(() => this.ProcessInput());
+            factory.StartNew(() => this.ProcessMetrics());
         }
 
         public void Add(FileChange item)

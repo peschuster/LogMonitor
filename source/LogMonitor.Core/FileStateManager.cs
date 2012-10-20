@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 
 namespace LogMonitor
 {
-    internal class FileStateManager : IDisposable
+    public class FileStateManager : IDisposable
     {
         private readonly Dictionary<string, long> positions = new Dictionary<string, long>();
 
@@ -66,7 +64,9 @@ namespace LogMonitor
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            this.Dispose(true);
+
+            GC.SuppressFinalize(this);
         }
 
         protected virtual void Dispose(bool disposing)
