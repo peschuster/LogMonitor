@@ -12,6 +12,8 @@ namespace LogMonitor
         {
             string basePath = Path.GetDirectoryName(typeof(Program).Assembly.Location);
 
+            PowershellProcessor.CheckScript(Path.Combine(basePath, @"Scripts\CallCountProcessor.ps1"));
+
             IProcessor[] processors = new IProcessor[]
             {
                 new PowershellProcessor(Path.Combine(basePath, @"Scripts\CallCountProcessor.ps1"), @"\.log$"),
