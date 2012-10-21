@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using LogMonitor.Configuration;
 using LogMonitor.Processors;
 
 namespace LogMonitor
@@ -10,23 +10,48 @@ namespace LogMonitor
     {
         public static void Main()
         {
-            string basePath = Path.GetDirectoryName(typeof(Program).Assembly.Location);
+            var processorsFactory = new ProcessorFactory();
 
-            PowershellProcessor.CheckScript(Path.Combine(basePath, @"Scripts\CallCountProcessor.ps1"));
+            LogMonitorConfiguration configuration = LogMonitorConfiguration.Instance;
 
-            IProcessor[] processors = new IProcessor[]
+            var processors = new List<IProcessor>();
+
+            foreach (ParserElement parser in configuration.Parser)
             {
-                new PowershellProcessor(Path.Combine(basePath, @"Scripts\CallCountProcessor.ps1"), @"\.log$"),
-                new PowershellProcessor(Path.Combine(basePath, @"Scripts\TimeTakenProcessor.ps1"), @"\.log$"),
-                new PowershellProcessor(Path.Combine(basePath, @"Scripts\HttpStatusProcessor.ps1"), @"\.log$"),
-            };
+                processors.Add(processorsFactory.Create(parser.ScriptPath, parser.Pattern));
+            }
 
-            string path = @"C:\develop\github\LogMonitor\test";
+            var preProcessors = new Dictionary<string, IPreProcessor>();
+            var filters = new Dictionary<string, string>();
+
+            W3CProcessor w3cProcessor = null;
+            DefaultPreProcessor preProcessor = new DefaultPreProcessor();
+
+            foreach (WatchElement element in configuration.Watch)
+            {
+                if (!string.IsNullOrEmpty(element.Type) && "w3c".Equals(element.Type, StringComparison.OrdinalIgnoreCase))
+                {
+                    preProcessors.Add(element.Path, w3cProcessor ?? (w3cProcessor = new W3CProcessor()));
+                }
+                else
+                {
+                    preProcessors.Add(element.Path, preProcessor);
+                }
+
+                if (!string.IsNullOrEmpty(element.Filter))
+                {
+                    filters.Add(element.Path, element.Filter);
+                }
+                else
+                {
+                    filters.Add(element.Path, "*");
+                }
+            }
 
             using (new Kernel(
                 processors,
-                new[] { path },
-                new Dictionary<string, IPreProcessor> { { path, new W3CProcessor() } }))
+                preProcessors,
+                filters))
             {
                 Console.ReadLine();
             }

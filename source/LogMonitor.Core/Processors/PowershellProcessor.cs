@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using System.Text.RegularExpressions;
@@ -13,7 +12,7 @@ namespace LogMonitor.Processors
 {
     public class PowershellProcessor : IProcessor, IDisposable
     {
-        private readonly string filePatten;
+        private readonly string filePattern;
 
         private Runspace runspace;
 
@@ -21,68 +20,20 @@ namespace LogMonitor.Processors
 
         private bool disposed;
 
-        public PowershellProcessor(string scriptPath, string filePatten = null)
+        public PowershellProcessor(string scriptPath, string filePattern = null)
         {
             if (string.IsNullOrWhiteSpace(scriptPath))
-                throw new ArgumentNullException("script");
+                throw new ArgumentNullException("scriptPath");
 
-            this.filePatten = filePatten;
+            this.filePattern = filePattern;
 
             this.Initialize(scriptPath);
         }
 
-        public static bool CheckScript(string scriptPath)
-        {
-            if (string.IsNullOrEmpty(scriptPath)
-                || !File.Exists(scriptPath))
-                return false;
-
-            string content = File.ReadAllText(scriptPath);
-
-            Collection<PSParseError> errors;
-
-            var tokens = PSParser.Tokenize(content, out errors);
-
-            if (errors.Any())
-                return false;
-
-            var sequence = new KeyValuePair<PSTokenType, string>[]
-            {
-                new KeyValuePair<PSTokenType, string>(PSTokenType.Keyword, "function"),
-                new KeyValuePair<PSTokenType, string>(PSTokenType.CommandArgument, "MetricProcessor"),
-                new KeyValuePair<PSTokenType, string>(PSTokenType.GroupStart, "("),
-                new KeyValuePair<PSTokenType, string>(PSTokenType.Type, "LogMonitor.FileChange"),
-                new KeyValuePair<PSTokenType, string>(PSTokenType.Variable, "change"),
-                new KeyValuePair<PSTokenType, string>(PSTokenType.GroupEnd, ")"),
-            };
-
-            int index = 0;
-
-            foreach (PSToken token in tokens)
-            {
-                if (token.Type == PSTokenType.NewLine)
-                    continue;
-
-                if (token.Type == sequence[index].Key && sequence[index].Value.Equals(token.Content, StringComparison.OrdinalIgnoreCase))
-                {
-                    index++;
-                }
-                else
-                {
-                    index = 0;
-                }
-
-                if (index == sequence.Length)
-                    return true;
-            }
-
-            return false;
-        }
-
         public bool IsMatch(string fileName)
         {
-            return string.IsNullOrEmpty(this.filePatten) 
-                || Regex.IsMatch(fileName, this.filePatten, RegexOptions.IgnoreCase);
+            return string.IsNullOrEmpty(this.filePattern) 
+                || Regex.IsMatch(fileName, this.filePattern, RegexOptions.IgnoreCase);
         }
 
         public IEnumerable<Metric> ParseLine(FileChange change)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 
 namespace LogMonitor
 {
@@ -13,13 +14,21 @@ namespace LogMonitor
 
         private FileSystemWatcher watcher;
 
+        private IDisposable subscription;
+
         private bool disposed;
 
         private readonly bool fullLines;
 
         public event EventHandler<ContentEventArgs> ContentAdded;
 
-        public FileNotificationService(DirectoryInfo directory, bool fullLines = false, string filter = "*.*")
+        public event FileSystemEventHandler Changed
+        {
+            add { this.watcher.Changed += value; }
+            remove { this.watcher.Changed -= value; }
+        }
+
+        public FileNotificationService(DirectoryInfo directory, bool fullLines, string filter)
         {
             if (directory == null)
                 throw new ArgumentNullException("directory");
@@ -29,7 +38,7 @@ namespace LogMonitor
 
             this.fullLines = fullLines;
 
-            FileSystemWatcher watcher = new FileSystemWatcher(directory.FullName, filter);
+            var watcher = new FileSystemWatcher(directory.FullName, filter);
             IEnumerable<FileInfo> files = directory.EnumerateFiles(filter);
             
             this.io = new FileHandler();
@@ -37,7 +46,7 @@ namespace LogMonitor
             this.Init(watcher, files);
         }
 
-        public FileNotificationService(FileInfo file, bool fullLines = false)
+        public FileNotificationService(FileInfo file, bool fullLines)
         {
             if (file == null)
                 throw new ArgumentNullException("file");
@@ -69,6 +78,9 @@ namespace LogMonitor
 
                 this.watcher.Dispose();
 
+                if (this.subscription != null)
+                    this.subscription.Dispose();
+
                 this.disposed = true;
             }
         }
@@ -80,10 +92,18 @@ namespace LogMonitor
             watcher.NotifyFilter = NotifyFilters.FileName | NotifyFilters.Size;
 
             watcher.Created += this.OnObjectChanged;
-            watcher.Changed += this.OnObjectChanged;
-
             watcher.Renamed += this.OnObjectRenamed;
             watcher.Deleted += this.OnObjectChanged;
+            
+            IObservable<FileSystemEventArgs> listener = Observable.FromEvent<FileSystemEventHandler, FileSystemEventArgs>(
+                handler => (sender, e) => { handler(e); },
+                h => watcher.Changed += h,
+                h => watcher.Changed -= h);
+
+            this.subscription = listener
+                .Buffer(TimeSpan.FromMilliseconds(500))
+                .Delay(TimeSpan.FromMilliseconds(10))
+                .Subscribe(OnObjectChanged);
 
             watcher.EnableRaisingEvents = true;
 
@@ -93,6 +113,18 @@ namespace LogMonitor
         private void OnObjectRenamed(object sender, RenamedEventArgs e)
         {
             this.states.RenameFile(e.OldFullPath, e.FullPath);
+        }
+
+        private void OnObjectChanged(IList<FileSystemEventArgs> eventList)
+        {
+            foreach (var fileEvent in eventList.GroupBy(l => l.FullPath))
+            {
+                // in the mean time there might have been a 'deleted' or 'renamed' event
+                if (!File.Exists(fileEvent.Key))
+                    continue;
+
+                this.OnObjectChanged(this.watcher, fileEvent.Last());
+            }
         }
 
         private void OnObjectChanged(object sender, FileSystemEventArgs e)
@@ -129,7 +161,7 @@ namespace LogMonitor
 
         private void TriggerContentAdded(string fileName, string addedContent)
         {
-            if (this.ContentAdded != null && addedContent != null)
+            if (this.ContentAdded != null && !string.IsNullOrEmpty(addedContent))
             {
                 this.ContentAdded(this, new ContentEventArgs(fileName, addedContent));
             }

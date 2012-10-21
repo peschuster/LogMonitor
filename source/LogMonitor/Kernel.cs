@@ -13,27 +13,25 @@ namespace LogMonitor
 
         private bool disposed;
 
-        public Kernel(IProcessor[] processors, string[] paths, IDictionary<string, IPreProcessor> preProcessors = null, string filter = "*.*")
+        public Kernel(IEnumerable<IProcessor> processors, IDictionary<string, IPreProcessor> preProcessors, IDictionary<string, string> filters)
         {
-            if (paths == null)
-                throw new ArgumentNullException("paths");
+            if (preProcessors == null)
+                throw new ArgumentNullException("preProcessors");
 
             if (processors == null)
                 throw new ArgumentNullException("processors");
             
             this.manager = new ChangeManager(processors);
 
-            foreach (string path in paths)
+            foreach (string path in preProcessors.Keys)
             {
-                FileNotificationService watcher = this.CreateWatcher(path, filter);
+                FileNotificationService watcher = this.CreateWatcher(path, filters[path]);
 
                 if (watcher != null)
                 {
                     this.watchers.Add(watcher);
 
-                    IPreProcessor preProcessor = preProcessors != null && preProcessors.ContainsKey(path)
-                        ? preProcessors[path]
-                        : new DefaultPreProcessor();
+                    IPreProcessor preProcessor = preProcessors[path];
 
                     watcher.ContentAdded += (object o, ContentEventArgs e) => this.manager.Add(preProcessor.Process(e.FileName, e.AddedContent));
                 }
@@ -65,7 +63,7 @@ namespace LogMonitor
             }
         }
 
-        private FileNotificationService CreateWatcher(string path, string filter = "*.*")
+        private FileNotificationService CreateWatcher(string path, string filter)
         {
             var info = new FileInfo(path);
             FileNotificationService watcher = null;

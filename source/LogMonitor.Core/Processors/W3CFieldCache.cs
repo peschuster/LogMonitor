@@ -20,7 +20,7 @@ namespace LogMonitor.Processors
         public W3CFieldCache(FileHandler ioHandler)
         {
             if (ioHandler == null)
-                throw new ArgumentNullException("io");
+                throw new ArgumentNullException("ioHandler");
               
             this.ioHandler = ioHandler;
         }

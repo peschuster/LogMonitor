@@ -12,21 +12,6 @@ namespace LogMonitor.Processors
             this.cache = new W3CFieldCache(new FileHandler());
         }
 
-        public W3CChange Process(FileChange change)
-        {
-            if (change == null)
-                throw new ArgumentNullException("change");
-
-            try
-            {
-                return this.Process(change.File, change.Content);
-            }
-            catch (ArgumentException exception)
-            {
-                throw new ArgumentException(exception.Message, "change", exception);
-            }
-        }
-
         public W3CChange Process(string fileName, string content)
         {
             if (string.IsNullOrEmpty(fileName))
@@ -43,7 +28,7 @@ namespace LogMonitor.Processors
 
             foreach (string line in lines)
             {
-                if (line.StartsWith("#"))
+                if (line.StartsWith("#") || string.IsNullOrWhiteSpace(line))
                     continue;
 
                 values.Add(line.Split(' '));

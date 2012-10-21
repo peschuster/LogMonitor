@@ -1,0 +1,530 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Graphite</name>
+    </assembly>
+    <members>
+        <member name="T:Graphite.ChannelFactory">
+            <summary>
+            Factory for monitoring channels.
+            </summary>
+        </member>
+        <member name="M:Graphite.ChannelFactory.#ctor(Graphite.Configuration.IGraphiteConfiguration,Graphite.Configuration.IStatsDConfiguration)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Graphite.ChannelFactory"/> class.
+            </summary>
+            <param name="graphite">The graphite configuration.</param>
+            <param name="statsd">The statsd configuration.</param>
+            <exception cref="T:System.ArgumentException">Invalid configuration values.</exception>
+        </member>
+        <member name="M:Graphite.ChannelFactory.CreateChannel(System.String,System.String)">
+            <summary>
+            Creates a new sampled monitoring channel.
+            </summary>
+            <param name="target">The target string (e.g. graphite, statsd, etc.)</param>
+            <param name="type">The type string (e.g. counter, gauge, etc.)</param>
+            <returns></returns>
+            <exception cref="T:System.NotImplementedException">No implementation for specified target available.</exception>
+            <exception cref="T:System.ArgumentException">No message formatter for specified target and type available.</exception>
+        </member>
+        <member name="M:Graphite.ChannelFactory.CreateChannel(System.String,System.String,System.Single)">
+            <summary>
+            Creates a new sampled monitoring channel.
+            </summary>
+            <param name="target">The target string (e.g. graphite, statsd, etc.)</param>
+            <param name="type">The type string (e.g. counter, gauge, etc.)</param>
+            <param name="sampling">The sampling factor.</param>
+            <returns></returns>
+            <exception cref="T:System.NotImplementedException">No implementation for specified target available.</exception>
+            <exception cref="T:System.ArgumentException">No message formatter for specified target and type available. Or sampling is for the specified target not available.</exception>
+        </member>
+        <member name="M:Graphite.ChannelFactory.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing,
+            or resetting unmanaged resources.
+            </summary>
+        </member>
+        <member name="M:Graphite.ChannelFactory.Dispose(System.Boolean)">
+            <summary>
+            Disposes the instance.
+            </summary>
+            <param name="disposing">True for disposing managed resources.</param>
+        </member>
+        <member name="T:Graphite.Configuration.GraphiteConfiguration">
+            <summary>
+            Base configuration for graphite package.
+            </summary>
+        </member>
+        <member name="F:Graphite.Configuration.GraphiteConfiguration.GraphiteConfigurationSectionName">
+            <summary>
+            The XML name of the GraphiteConfigurationSectionName Configuration Section.
+            </summary>        
+        </member>
+        <member name="F:Graphite.Configuration.GraphiteConfiguration.XmlnsPropertyName">
+            <summary>
+            The XML name of the <see cref="P:Graphite.Configuration.GraphiteConfiguration.Xmlns"/> property.
+            </summary>        
+        </member>
+        <member name="F:Graphite.Configuration.GraphiteConfiguration.GraphitePropertyName">
+            <summary>
+            The XML name of the <see cref="P:Graphite.Configuration.GraphiteConfiguration.Graphite"/> property.
+            </summary>        
+        </member>
+        <member name="F:Graphite.Configuration.GraphiteConfiguration.StatsDPropertyName">
+            <summary>
+            The XML name of the <see cref="P:Graphite.Configuration.GraphiteConfiguration.StatsD"/> property.
+            </summary>        
+        </member>
+        <member name="P:Graphite.Configuration.GraphiteConfiguration.Instance">
+            <summary>
+            Gets the W3CReadersConfiguration instance.
+            </summary>        
+        </member>
+        <member name="P:Graphite.Configuration.GraphiteConfiguration.Xmlns">
+            <summary>
+            Gets the XML namespace of this Configuration Section.
+            </summary>
+            <remarks>
+            This property makes sure that if the configuration file contains the XML namespace,
+            the parser doesn't throw an exception because it encounters the unknown "xmlns" attribute.
+            </remarks>        
+        </member>
+        <member name="P:Graphite.Configuration.GraphiteConfiguration.Graphite">
+            <summary>
+            Gets or sets the Graphite configuration.
+            </summary>
+        </member>
+        <member name="P:Graphite.Configuration.GraphiteConfiguration.StatsD">
+            <summary>
+            Gets or sets the StatsD configuration.
+            </summary>
+        </member>
+        <member name="T:Graphite.Configuration.GraphiteElement">
+            <summary>
+            Configuration for graphite backend.
+            </summary>
+        </member>
+        <member name="T:Graphite.Configuration.IGraphiteConfiguration">
+            <summary>
+            Configuration for graphite endpoint.
+            </summary>
+        </member>
+        <member name="P:Graphite.Configuration.IGraphiteConfiguration.Port">
+            <summary>
+            Gets the port number.
+            </summary>        
+        </member>
+        <member name="P:Graphite.Configuration.IGraphiteConfiguration.Address">
+            <summary>
+            Gets the host address.
+            </summary>        
+        </member>
+        <member name="P:Graphite.Configuration.IGraphiteConfiguration.Transport">
+            <summary>
+            Gets the transport protocol.
+            </summary>        
+        </member>
+        <member name="P:Graphite.Configuration.IGraphiteConfiguration.PrefixKey">
+            <summary>
+            Gets the common prefix key.
+            </summary>        
+        </member>
+        <member name="F:Graphite.Configuration.GraphiteElement.AddressPropertyName">
+            <summary>
+            The XML name of the <see cref="P:Graphite.Configuration.GraphiteElement.Address"/> property.
+            </summary>        
+        </member>
+        <member name="F:Graphite.Configuration.GraphiteElement.PortPropertyName">
+            <summary>
+            The XML name of the <see cref="P:Graphite.Configuration.GraphiteElement.Port"/> property.
+            </summary>        
+        </member>
+        <member name="F:Graphite.Configuration.GraphiteElement.TransportPropertyName">
+            <summary>
+            The XML name of the <see cref="P:Graphite.Configuration.GraphiteElement.Transport"/> property.
+            </summary>        
+        </member>
+        <member name="P:Graphite.Configuration.GraphiteElement.Port">
+            <summary>
+            Gets or sets the port number.
+            </summary>        
+        </member>
+        <member name="P:Graphite.Configuration.GraphiteElement.Address">
+            <summary>
+            Gets or sets the port number.
+            </summary>        
+        </member>
+        <member name="P:Graphite.Configuration.GraphiteElement.Transport">
+            <summary>
+            Gets or sets the port number.
+            </summary>        
+        </member>
+        <member name="P:Graphite.Configuration.GraphiteElement.PrefixKey">
+            <summary>
+            Gets or sets the prefix key.
+            </summary>        
+        </member>
+        <member name="T:Graphite.Configuration.IStatsDConfiguration">
+            <summary>
+            Configuration for statsd endpoint.
+            </summary>
+        </member>
+        <member name="P:Graphite.Configuration.IStatsDConfiguration.Port">
+            <summary>
+            Gets the port number.
+            </summary>        
+        </member>
+        <member name="P:Graphite.Configuration.IStatsDConfiguration.Address">
+            <summary>
+            Gets the host address.
+            </summary>        
+        </member>
+        <member name="P:Graphite.Configuration.IStatsDConfiguration.PrefixKey">
+            <summary>
+            Gets the common prefix key.
+            </summary>        
+        </member>
+        <member name="T:Graphite.Configuration.StatsDElement">
+            <summary>
+            Configuration for statsD backend.
+            </summary>
+        </member>
+        <member name="F:Graphite.Configuration.StatsDElement.AddressPropertyName">
+            <summary>
+            The XML name of the <see cref="P:Graphite.Configuration.StatsDElement.Address"/> property.
+            </summary>        
+        </member>
+        <member name="F:Graphite.Configuration.StatsDElement.PortPropertyName">
+            <summary>
+            The XML name of the <see cref="P:Graphite.Configuration.StatsDElement.Port"/> property.
+            </summary>
+        </member>
+        <member name="P:Graphite.Configuration.StatsDElement.Port">
+            <summary>
+            Gets or sets the port number.
+            </summary>        
+        </member>
+        <member name="P:Graphite.Configuration.StatsDElement.Address">
+            <summary>
+            Gets or sets the port number.
+            </summary>        
+        </member>
+        <member name="P:Graphite.Configuration.StatsDElement.PrefixKey">
+            <summary>
+            Gets or sets the prefix key.
+            </summary>        
+        </member>
+        <member name="T:Graphite.Formatters.FormatterFactory">
+            <summary>
+            Factory for message formatters (<see cref="T:Graphite.Formatters.IMessageFormatter"/>).
+            </summary>
+        </member>
+        <member name="M:Graphite.Formatters.FormatterFactory.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Graphite.Formatters.FormatterFactory"/> class to 
+            create message formatters (<see cref="T:Graphite.Formatters.IMessageFormatter"/>).
+            </summary>
+        </member>
+        <member name="M:Graphite.Formatters.FormatterFactory.Get(System.String,System.String,System.Boolean)">
+            <summary>
+            Gets the corresponding message formater for specified <paramref name="target"/> and <paramref name="type"/>.
+            </summary>
+            <param name="target">The target string (e.g. graphite, statsd, etc.)</param>
+            <param name="type">[Optional] The type string (e.g. counter, gauge, etc.)</param>
+            <param name="sampling">Set to true, if the message formatter must support sampling.</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException">Invalid combination of <paramref name="target"/> and <paramref name="type"/>.</exception>
+        </member>
+        <member name="T:Graphite.Formatters.IMessageFormatter">
+            <summary>
+            Formatter for messages to monitoring backends.
+            </summary>
+        </member>
+        <member name="M:Graphite.Formatters.IMessageFormatter.IsMatch(System.String,System.String)">
+            <summary>
+            Returns true, if this formatter can handle messages for the specified <paramref name="target" /> and <paramref name="type" />. 
+            Otherwise <c>NULL</c> is returned.
+            </summary>
+            <param name="target">The target string (e.g. graphite, statsd, etc.)</param>
+            <param name="type">[Optional] The type string (e.g. counter, gauge, etc.)</param>
+            <returns>
+            Returns true, if this formatter can handle messages for the specified <paramref name="target" /> and <paramref name="type" />. 
+            Otherwise <c>NULL</c> is returned.
+            </returns>
+        </member>
+        <member name="M:Graphite.Formatters.IMessageFormatter.Format(System.String,System.Int32)">
+            <summary>
+            Generates a formatted message for specified <paramref name="key"/> and <paramref name="value" />.
+            </summary>
+            <param name="key">The key string.</param>
+            <param name="value">The reported value.</param>
+            <returns>The formatted string.</returns>
+        </member>
+        <member name="T:Graphite.Formatters.ISampledMessageFormatter">
+            <summary>
+            Formatter for sampled messages to monitoring backends.
+            </summary>
+            <seealso cref="T:Graphite.Formatters.IMessageFormatter"/>
+        </member>
+        <member name="M:Graphite.Formatters.ISampledMessageFormatter.Format(System.String,System.Int32,System.Single)">
+            <summary>
+            Generates a formatted message for specified <paramref name="key"/>, <paramref name="value" /> and <paramref name="sampling"/>.
+            </summary>
+            <param name="key">The key string.</param>
+            <param name="value">The reported value.</param>
+            <param name="sampling">The sampling factor.</param>
+            <returns>The formatted string.</returns>
+        </member>
+        <member name="T:Graphite.Infrastructure.IMonitoringChannel">
+            <summary>
+            Channel for reporting values.
+            </summary>
+        </member>
+        <member name="M:Graphite.Infrastructure.IMonitoringChannel.Report(System.String,System.Int32)">
+            <summary>
+            Reports the specified value.
+            </summary>
+            <param name="key">The metric key.</param>
+            <param name="value">The value.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Graphite.Infrastructure.IMonitoringChannel.ReportAsync(System.String,System.Int32)">
+            <summary>
+            Reports the specifed value asynchron, returning a task.
+            </summary>
+            <param name="key">The metric key.</param>
+            <param name="value">The value.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Graphite.Infrastructure.ISamplingPipe">
+            <summary>
+            Pipe for metrics transmission, supporting sampling.
+            </summary>
+        </member>
+        <member name="M:Graphite.Infrastructure.ISamplingPipe.Send(System.String,System.Single)">
+            <summary>
+            Sends the specified message.
+            </summary>
+            <param name="message">The message.</param>
+            <param name="sampling">The sampling.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Graphite.Infrastructure.ISamplingPipe.Send(System.String[],System.Single)">
+            <summary>
+            Sends the specified messages.
+            </summary>
+            <param name="messages">The messages.</param>
+            <param name="sampling">The sampling.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Graphite.IMetricsPipeProvider">
+            <summary>
+            Provider for the current MetricsPipe instamce.
+            </summary>
+        </member>
+        <member name="M:Graphite.IMetricsPipeProvider.Start">
+            <summary>
+            Starts a new MetricsPipe instance.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Graphite.IMetricsPipeProvider.Stop">
+            <summary>
+            Stops the current MetricsPipe instance.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:Graphite.IMetricsPipeProvider.Current">
+            <summary>
+            Returns the current MetricsPipe instance.
+            </summary>
+        </member>
+        <member name="T:Graphite.Infrastructure.SamplingMonitoringChannel">
+            <summary>
+            Monitoring channel supporting sampling.
+            </summary>
+        </member>
+        <member name="M:Graphite.Infrastructure.SamplingMonitoringChannel.#ctor(System.Func{System.String,System.String},Graphite.Formatters.ISampledMessageFormatter,Graphite.Infrastructure.ISamplingPipe,System.Single)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Graphite.Infrastructure.SamplingMonitoringChannel"/> class.
+            </summary>
+            <param name="keyBuilder">Builds up the final metric key.</param>
+            <param name="formatter">The message formatter.</param>
+            <param name="pipe">The pipe.</param>
+            <param name="sampling">The sampling.</param>
+        </member>
+        <member name="M:Graphite.Infrastructure.SamplingMonitoringChannel.Report(System.String,System.Int32)">
+            <summary>
+            Reports the specified value.
+            </summary>
+            <param name="key">The metric key.</param>
+            <param name="value">The value.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Graphite.Infrastructure.SamplingMonitoringChannel.ReportAsync(System.String,System.Int32)">
+            <summary>
+            Reports the specifed value asynchron, returning a task.
+            </summary>
+            <param name="key">The metric key.</param>
+            <param name="value">The value.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Graphite.Infrastructure.MonitoringChannel">
+            <summary>
+            Channel for reporting values.
+            </summary>
+        </member>
+        <member name="M:Graphite.Infrastructure.MonitoringChannel.#ctor(System.Func{System.String,System.String},Graphite.Formatters.IMessageFormatter,Graphite.Infrastructure.IPipe)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Graphite.Infrastructure.MonitoringChannel"/> class.
+            </summary>
+            <param name="keyBuilder">Builds up the final metric key.</param>
+            <param name="formatter">The message formatter.</param>
+            <param name="pipe">The pipe.</param>
+        </member>
+        <member name="M:Graphite.Infrastructure.MonitoringChannel.Report(System.String,System.Int32)">
+            <summary>
+            Reports the specified value.
+            </summary>
+            <param name="key">The metric key.</param>
+            <param name="value">The value.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Graphite.Infrastructure.MonitoringChannel.ReportAsync(System.String,System.Int32)">
+            <summary>
+            Reports the specifed value asynchron, returning a task.
+            </summary>
+            <param name="key">The metric key.</param>
+            <param name="value">The value.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Graphite.Infrastructure.IPipe">
+            <summary>
+            Pipe for metric transmission.
+            </summary>
+        </member>
+        <member name="M:Graphite.Infrastructure.IPipe.Send(System.String)">
+            <summary>
+            Sends the specified message.
+            </summary>
+            <param name="message">The message.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Graphite.Infrastructure.IPipe.Send(System.String[])">
+            <summary>
+            Sends the specified messages.
+            </summary>
+            <param name="messages">The messages.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Graphite.StaticMetricsPipeProvider.Start">
+            <summary>
+            Starts a new MetricsPipe instance.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Graphite.StaticMetricsPipeProvider.Stop">
+            <summary>
+            Stops the current MetricsPipe instance.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:Graphite.StaticMetricsPipeProvider.Current">
+            <summary>
+            Returns the current MetricsPipe instance.
+            </summary>
+            <value></value>
+        </member>
+        <member name="T:Graphite.MetricsPipe">
+            <summary>
+            Profiler for StatsD
+            </summary>
+        </member>
+        <member name="M:Graphite.MetricsPipe.Stop">
+            <summary>
+            Stops the MetricsPipe and the internal watch.
+            </summary>
+        </member>
+        <member name="M:Graphite.MetricsPipe.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing,
+            or resetting unmanaged resources.
+            </summary>
+        </member>
+        <member name="M:Graphite.MetricsPipe.Dispose(System.Boolean)">
+            <summary>
+            Disposes the instance.
+            </summary>
+            <param name="disposing">True for disposing managed resources.</param>
+        </member>
+        <member name="P:Graphite.MetricsPipe.Current">
+            <summary>
+            Current instance of StatsD (might be null).
+            </summary>
+        </member>
+        <member name="P:Graphite.MetricsPipe.ElapsedMilliseconds">
+            <summary>
+            Total elapsed milliseconds.
+            </summary>
+        </member>
+        <member name="T:Graphite.MetricsPipeExtensions">
+            <summary>
+            Extensions for Metrics pipe.
+            </summary>
+        </member>
+        <member name="M:Graphite.MetricsPipeExtensions.Step(Graphite.MetricsPipe,System.String)">
+            <summary>
+            Times a step with specified key.
+            </summary>
+            <param name="profiler">The profiler.</param>
+            <param name="key">The key.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Graphite.MetricsPipeExtensions.Timing(Graphite.MetricsPipe,System.String,System.Int32)">
+            <summary>
+            Submits a timing directly.
+            </summary>
+            <param name="profiler">The profiler.</param>
+            <param name="key">The key.</param>
+            <param name="value">The timing value.</param>
+        </member>
+        <member name="M:Graphite.MetricsPipeExtensions.Count(Graphite.MetricsPipe,System.String,System.Int32,System.Single)">
+            <summary>
+            Increases a counter for specified key.
+            </summary>
+            <param name="profiler">The profiler.</param>
+            <param name="key">The key.</param>
+            <param name="value">The value.</param>
+            <param name="sampling">Sample by provided value.</param>
+        </member>
+        <member name="M:Graphite.MetricsPipeExtensions.Gauge(Graphite.MetricsPipe,System.String,System.Int32)">
+            <summary>
+            Reports a gauge value for specified key.
+            </summary>
+            <param name="profiler">The profiler.</param>
+            <param name="key">The key.</param>
+            <param name="value">The value.</param>
+        </member>
+        <member name="M:Graphite.MetricsPipeExtensions.Raw(Graphite.MetricsPipe,System.String,System.Int32)">
+            <summary>
+            Reports a raw value directly to graphite.
+            </summary>
+            <param name="profiler">The profiler.</param>
+            <param name="key">The metric key.</param>
+            <param name="value">The value.</param>
+        </member>
+        <member name="F:Graphite.Helpers.ValidHostnamePattern">
+            <remarks>
+            See: http://stackoverflow.com/questions/106179/regular-expression-to-match-hostname-or-ip-address#106223"
+            </remarks>
+        </member>
+        <member name="M:Graphite.Helpers.ParseAddress(System.String)">
+            <exception cref="T:System.ArgumentException"/>
+        </member>
+        <member name="P:Graphite.Logging.Source">
+            <summary>
+            Graphite trace source.
+            </summary>
+        </member>
+    </members>
+</doc>

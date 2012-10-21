@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using LogMonitor.Helpers;
 
 namespace LogMonitor
 {
@@ -42,6 +43,14 @@ namespace LogMonitor
             {
                 this.positions.Add(fullPath, position);
             }
+        }
+
+        public void UpdatePositions(Func<string, long, long> visitor)
+        {
+            if (visitor == null)
+                throw new ArgumentNullException("visitor");
+
+            this.positions.Each(item => this.positions[item.Key] = visitor(item.Key, item.Value));
         }
 
         public bool RenameFile(string oldPath, string fullPath)

@@ -68,12 +68,16 @@ namespace LogMonitor
                 if (this.cancellation.IsCancellationRequested)
                     return;
 
-                IEnumerable<Metric>[] metrics = new IEnumerable<Metric>[this.processors.Length];
+                IProcessor[] matchingProcessors = this.processors
+                    .Where(p => p.IsMatch(item.File))
+                    .ToArray();
+
+                IEnumerable<Metric>[] metrics = new IEnumerable<Metric>[matchingProcessors.Length];
 
                 Sequential.For(
-                    0, 
-                    this.processors.Length,
-                    i => metrics[i] = this.processors[i].ParseLine(item));
+                    0,
+                    matchingProcessors.Length,
+                    i => metrics[i] = matchingProcessors[i].ParseLine(item));
 
                 this.outputQueue.Add(new ResultContainer
                 {
