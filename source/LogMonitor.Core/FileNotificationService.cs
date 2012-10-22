@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading;
 
 namespace LogMonitor
 {
@@ -101,8 +102,8 @@ namespace LogMonitor
                 h => watcher.Changed -= h);
 
             this.subscription = listener
-                .Buffer(TimeSpan.FromMilliseconds(500))
                 .Delay(TimeSpan.FromMilliseconds(10))
+                .Buffer(TimeSpan.FromMilliseconds(500))
                 .Subscribe(OnObjectChanged);
 
             watcher.EnableRaisingEvents = true;
@@ -136,7 +137,18 @@ namespace LogMonitor
                 long position = this.states.GetPosition(fileName);
                 long initialPosition = position;
 
-                string content = this.io.Read(fileName, ref position);
+                string content;
+                try
+                {
+                    content = this.io.Read(fileName, ref position);
+                }
+                catch (IOException)
+                {
+                    // file in use
+
+                    Thread.Sleep(10);
+                    content = this.io.Read(fileName, ref position);
+                }
 
                 if (!string.IsNullOrEmpty(content) && this.fullLines)
                 {
