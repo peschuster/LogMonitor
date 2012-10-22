@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Threading;
+using LogMonitor.Helpers;
 
 namespace LogMonitor
 {
@@ -137,18 +137,8 @@ namespace LogMonitor
                 long position = this.states.GetPosition(fileName);
                 long initialPosition = position;
 
-                string content;
-                try
-                {
-                    content = this.io.Read(fileName, ref position);
-                }
-                catch (IOException)
-                {
-                    // file in use
-
-                    Thread.Sleep(10);
-                    content = this.io.Read(fileName, ref position);
-                }
+                Func<string> read = () => this.io.Read(fileName, ref position);
+                string content = read.Retry<IOException, string>(4, 2);
 
                 if (!string.IsNullOrEmpty(content) && this.fullLines)
                 {

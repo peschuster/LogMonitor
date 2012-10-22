@@ -67,6 +67,7 @@
     <Compile Include="FileHandler.cs" />
     <Compile Include="FileNotificationService.cs" />
     <Compile Include="FileStateManager.cs" />
+    <Compile Include="Helpers\ActionExtensions.cs" />
     <Compile Include="Helpers\EnumerableExtensions.cs" />
     <Compile Include="Helpers\ExceptionExtensions.cs" />
     <Compile Include="Helpers\StringExtensions.cs" />
