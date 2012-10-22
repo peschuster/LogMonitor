@@ -100,15 +100,31 @@ namespace LogMonitor
                 handler => (sender, e) => { handler(e); },
                 h => watcher.Changed += h,
                 h => watcher.Changed -= h);
+            
+            IObservable<IList<FileSystemEventArgs>> listener2 = Observable.Interval(TimeSpan.FromSeconds(5))
+                .SelectMany(l => this.states.Files)
+                .Where(this.SizeChanged)
+                .Select(file => new FileSystemEventArgs(WatcherChangeTypes.Changed, Path.GetDirectoryName(file), Path.GetFileName(file)))
+                .Buffer(TimeSpan.FromMilliseconds(10));
 
             this.subscription = listener
                 .Delay(TimeSpan.FromMilliseconds(10))
                 .Buffer(TimeSpan.FromMilliseconds(bufferTime))
+                .Merge(listener2)
                 .Subscribe(OnObjectChanged);
 
             watcher.EnableRaisingEvents = true;
 
             this.watcher = watcher;
+        }
+
+        private bool SizeChanged(string file)
+        {
+            long position = this.states.GetPosition(file);
+
+            var info = new FileInfo(file);
+
+            return info.Length != position;
         }
 
         private void OnObjectRenamed(object sender, RenamedEventArgs e)
@@ -135,25 +151,33 @@ namespace LogMonitor
             if (e.ChangeType == WatcherChangeTypes.Created || e.ChangeType == WatcherChangeTypes.Changed)
             {   
                 long position = this.states.GetPosition(fileName);
-                long initialPosition = position;
 
-                Func<string> read = () => this.io.Read(fileName, ref position);
-                string content = read.Retry<IOException, string>(4, 2);
+                var info = new FileInfo(fileName);
 
-                if (!string.IsNullOrEmpty(content) && this.fullLines)
+                if (info.Length != position)
                 {
-                    int lastLineBreak = Math.Max(content.LastIndexOf('\n'), content.LastIndexOf('\r'));
+                    // Only process, if position changed
 
-                    if (position > (initialPosition + lastLineBreak))
+                    long initialPosition = position;
+
+                    Func<string> read = () => this.io.Read(fileName, ref position);
+                    string content = read.Retry<IOException, string>(4, 2);
+
+                    if (!string.IsNullOrEmpty(content) && this.fullLines)
                     {
-                        position = initialPosition + lastLineBreak;
-                        content = content.Substring(0, Math.Min(content.LastIndexOf('\n'), content.LastIndexOf('\r')) + 1);
+                        int lastLineBreak = Math.Max(content.LastIndexOf('\n'), content.LastIndexOf('\r'));
+
+                        if (position > (initialPosition + lastLineBreak))
+                        {
+                            position = initialPosition + lastLineBreak;
+                            content = content.Substring(0, Math.Min(content.LastIndexOf('\n'), content.LastIndexOf('\r')) + 1);
+                        }
                     }
+
+                    this.states.UpdatePosition(fileName, position);
+
+                    this.TriggerContentAdded(fileName, content);
                 }
-
-                this.states.UpdatePosition(fileName, position);
-
-                this.TriggerContentAdded(fileName, content);
             }
             else if (e.ChangeType == WatcherChangeTypes.Deleted)
             {

@@ -23,6 +23,11 @@ namespace LogMonitor
             }
         }
 
+        public IList<string> Files
+        {
+            get { return new List<string>(this.positions.Keys); }
+        }
+
         public long GetPosition(string fullPath)
         {
             if (this.positions.ContainsKey(fullPath))

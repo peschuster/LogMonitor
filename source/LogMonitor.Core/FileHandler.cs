@@ -16,7 +16,7 @@ namespace LogMonitor
         {
             string content;
             Stream stream = null;
-
+            
             try
             {
                 stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
