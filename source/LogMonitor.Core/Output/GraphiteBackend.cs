@@ -3,7 +3,6 @@ using System.Linq;
 using Graphite;
 using Graphite.Configuration;
 using Graphite.Infrastructure;
-using LogMonitor.Helpers;
 
 namespace LogMonitor.Output
 {

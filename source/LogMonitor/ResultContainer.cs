@@ -1,6 +1,4 @@
-﻿using LogMonitor.Processors;
-
-namespace LogMonitor
+﻿namespace LogMonitor
 {
     internal class ResultContainer
     {

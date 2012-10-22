@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using LogMonitor.Configuration;
 using LogMonitor.Output;
 using LogMonitor.Processors;
 
@@ -14,27 +15,39 @@ namespace LogMonitor
 
         private bool disposed;
 
-        public Kernel(IEnumerable<IProcessor> processors, IDictionary<string, IPreProcessor> preProcessors, IDictionary<string, string> filters, OutputFilter outputFilter)
+        public Kernel(IEnumerable<IProcessor> processors, IEnumerable<IWatchConfiguration> watchList, OutputFilter outputFilter)
         {
-            if (preProcessors == null)
-                throw new ArgumentNullException("preProcessors");
+            if (watchList == null)
+                throw new ArgumentNullException("watchList");
 
             if (processors == null)
                 throw new ArgumentNullException("processors");
 
             this.manager = new ChangeManager(processors, outputFilter);
 
-            foreach (string path in preProcessors.Keys)
+            Lazy<W3CProcessor> w3CProcessor = new Lazy<W3CProcessor>(() => new W3CProcessor());
+            DefaultPreProcessor preProcessor = new DefaultPreProcessor();
+
+            foreach (var item in watchList)
             {
-                FileNotificationService watcher = this.CreateWatcher(path, filters[path]);
+                FileNotificationService watcher = this.CreateWatcher(item);
 
                 if (watcher != null)
                 {
                     this.watchers.Add(watcher);
 
-                    IPreProcessor preProcessor = preProcessors[path];
+                    IPreProcessor selectedPreProcessor;
 
-                    watcher.ContentAdded += (object o, ContentEventArgs e) => this.manager.Add(preProcessor.Process(e.FileName, e.AddedContent));
+                    if (!string.IsNullOrEmpty(item.Type) && "w3c".Equals(item.Type, StringComparison.OrdinalIgnoreCase))
+                    {
+                        selectedPreProcessor = w3CProcessor.Value;
+                    }
+                    else
+                    {
+                        selectedPreProcessor = preProcessor;
+                    }
+
+                    watcher.ContentAdded += (object o, ContentEventArgs e) => this.manager.Add(selectedPreProcessor.Process(e.FileName, e.AddedContent));
                 }
             }
         }
@@ -64,23 +77,23 @@ namespace LogMonitor
             }
         }
 
-        private FileNotificationService CreateWatcher(string path, string filter)
+        private FileNotificationService CreateWatcher(IWatchConfiguration configuration)
         {
-            var info = new FileInfo(path);
+            var info = new FileInfo(configuration.Path);
             FileNotificationService watcher = null;
 
             if (info.Attributes.HasFlag(FileAttributes.Directory))
             {
-                DirectoryInfo directory = new DirectoryInfo(path);
+                DirectoryInfo directory = new DirectoryInfo(configuration.Path);
 
                 if (directory.Exists)
                 {
-                    watcher = new FileNotificationService(directory, true, filter);
+                    watcher = new FileNotificationService(directory, true, configuration.Filter ?? "*", configuration.BufferTime);
                 }
             }
             else if (info.Exists)
             {
-                watcher = new FileNotificationService(info, true);
+                watcher = new FileNotificationService(info, true, configuration.BufferTime);
             }
 
             return watcher;

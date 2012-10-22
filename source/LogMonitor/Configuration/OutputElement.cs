@@ -30,14 +30,8 @@ namespace LogMonitor.Configuration
         [ConfigurationPropertyAttribute(PathPatternPropertyName, IsRequired = true, IsKey = true)]
         public string PathPattern
         {
-            get
-            {
-                return (string)base[PathPatternPropertyName];
-            }
-            set
-            {
-                base[PathPatternPropertyName] = value;
-            }
+            get { return (string)base[PathPatternPropertyName]; }
+            set { base[PathPatternPropertyName] = value; }
         }
 
         /// <summary>
@@ -46,14 +40,8 @@ namespace LogMonitor.Configuration
         [ConfigurationPropertyAttribute(TypePropertyName, IsRequired = true)]
         public string Type
         {
-            get
-            {
-                return (string)base[TypePropertyName];
-            }
-            set
-            {
-                base[TypePropertyName] = value;
-            }
+            get { return (string)base[TypePropertyName]; }
+            set { base[TypePropertyName] = value; }
         }
 
         /// <summary>
@@ -62,14 +50,8 @@ namespace LogMonitor.Configuration
         [ConfigurationPropertyAttribute(TargetPropertyName, IsRequired = true)]
         public string Target
         {
-            get
-            {
-                return (string)base[TargetPropertyName];
-            }
-            set
-            {
-                base[TargetPropertyName] = value;
-            }
+            get { return (string)base[TargetPropertyName]; }
+            set { base[TargetPropertyName] = value; }
         }
 
         /// <summary>
@@ -78,14 +60,8 @@ namespace LogMonitor.Configuration
         [ConfigurationPropertyAttribute(MetricsPrefixPropertyName, IsRequired = true)]
         public string MetricsPrefix
         {
-            get
-            {
-                return (string)base[MetricsPrefixPropertyName];
-            }
-            set
-            {
-                base[MetricsPrefixPropertyName] = value;
-            }
+            get { return (string)base[MetricsPrefixPropertyName]; }
+            set { base[MetricsPrefixPropertyName] = value; }
         }
     }
 }

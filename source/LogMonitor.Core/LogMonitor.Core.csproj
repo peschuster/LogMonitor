@@ -62,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\IOutputConfiguration.cs" />
+    <Compile Include="Configuration\IWatchConfiguration.cs" />
     <Compile Include="ContentEventArgs.cs" />
     <Compile Include="FileChange.cs" />
     <Compile Include="FileHandler.cs" />

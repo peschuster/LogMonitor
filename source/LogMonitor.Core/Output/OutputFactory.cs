@@ -9,10 +9,20 @@ namespace LogMonitor.Output
 {
     public class OutputFactory
     {
-        public OutputFilter CreateFilter(IEnumerable<IOutputConfiguration> configurations, IGraphiteConfiguration graphiteConfiguration, IStatsDConfiguration statsDConfiguration)
+        private readonly IStatsDConfiguration statsDConfiguration;
+
+        private readonly IGraphiteConfiguration graphiteConfiguration;
+
+        public OutputFactory(IGraphiteConfiguration graphiteConfiguration, IStatsDConfiguration statsDConfiguration)
         {
-            Lazy<GraphiteBackend> graphite = new Lazy<GraphiteBackend>(() => new GraphiteBackend(graphiteConfiguration));
-            Lazy<StatsDBackend> statsD = new Lazy<StatsDBackend>(() => new StatsDBackend(statsDConfiguration));
+            this.graphiteConfiguration = graphiteConfiguration;
+            this.statsDConfiguration = statsDConfiguration;
+        }
+
+        public OutputFilter CreateFilter(IEnumerable<IOutputConfiguration> configurations)
+        {
+            Lazy<GraphiteBackend> graphite = new Lazy<GraphiteBackend>(() => new GraphiteBackend(this.graphiteConfiguration));
+            Lazy<StatsDBackend> statsD = new Lazy<StatsDBackend>(() => new StatsDBackend(this.statsDConfiguration));
             Lazy<ConsoleBackend> console = new Lazy<ConsoleBackend>(() => new ConsoleBackend());
 
             List<OutputTarget> targets = new List<OutputTarget>();

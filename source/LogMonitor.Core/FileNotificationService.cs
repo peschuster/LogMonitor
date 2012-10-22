@@ -29,7 +29,7 @@ namespace LogMonitor
             remove { this.watcher.Changed -= value; }
         }
 
-        public FileNotificationService(DirectoryInfo directory, bool fullLines, string filter)
+        public FileNotificationService(DirectoryInfo directory, bool fullLines, string filter, int bufferTime)
         {
             if (directory == null)
                 throw new ArgumentNullException("directory");
@@ -44,10 +44,10 @@ namespace LogMonitor
             
             this.io = new FileHandler();
 
-            this.Init(watcher, files);
+            this.Init(watcher, files, bufferTime);
         }
 
-        public FileNotificationService(FileInfo file, bool fullLines)
+        public FileNotificationService(FileInfo file, bool fullLines, int bufferTime)
         {
             if (file == null)
                 throw new ArgumentNullException("file");
@@ -61,7 +61,7 @@ namespace LogMonitor
 
             this.io = new FileHandler();
 
-            this.Init(watcher, new [] { file });
+            this.Init(watcher, new[] { file }, bufferTime);
         }
 
         public void Dispose()
@@ -86,7 +86,7 @@ namespace LogMonitor
             }
         }
 
-        private void Init(FileSystemWatcher watcher, IEnumerable<FileInfo> files)
+        private void Init(FileSystemWatcher watcher, IEnumerable<FileInfo> files, int bufferTime)
         {
             this.states = new FileStateManager(files);
 
@@ -103,7 +103,7 @@ namespace LogMonitor
 
             this.subscription = listener
                 .Delay(TimeSpan.FromMilliseconds(10))
-                .Buffer(TimeSpan.FromMilliseconds(500))
+                .Buffer(TimeSpan.FromMilliseconds(bufferTime))
                 .Subscribe(OnObjectChanged);
 
             watcher.EnableRaisingEvents = true;

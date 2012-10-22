@@ -24,44 +24,16 @@ namespace LogMonitor
                 processors.Add(processorsFactory.Create(parser.ScriptPath, parser.Pattern));
             }
 
-            var preProcessors = new Dictionary<string, IPreProcessor>();
-            var filters = new Dictionary<string, string>();
-
-            Lazy<W3CProcessor> w3cProcessor = new Lazy<W3CProcessor>(() => new W3CProcessor());
-            DefaultPreProcessor preProcessor = new DefaultPreProcessor();
-
-            foreach (WatchElement element in configuration.Watch)
-            {
-                if (!string.IsNullOrEmpty(element.Type) && "w3c".Equals(element.Type, StringComparison.OrdinalIgnoreCase))
-                {
-                    preProcessors.Add(element.Path, w3cProcessor.Value);
-                }
-                else
-                {
-                    preProcessors.Add(element.Path, preProcessor);
-                }
-
-                if (!string.IsNullOrEmpty(element.Filter))
-                {
-                    filters.Add(element.Path, element.Filter);
-                }
-                else
-                {
-                    filters.Add(element.Path, "*");
-                }
-            }
-
-            var outputFactory = new OutputFactory();
+            var outputFactory = new OutputFactory(
+                GraphiteConfiguration.Instance == null ? null : GraphiteConfiguration.Instance.Graphite,
+                GraphiteConfiguration.Instance == null ? null : GraphiteConfiguration.Instance.StatsD);
 
             using (OutputFilter outputFilter = outputFactory.CreateFilter(
-                configuration.Output.Cast<IOutputConfiguration>(),
-                GraphiteConfiguration.Instance == null ? null : GraphiteConfiguration.Instance.Graphite,
-                GraphiteConfiguration.Instance == null ? null : GraphiteConfiguration.Instance.StatsD))
+                configuration.Output.Cast<IOutputConfiguration>()))
             {
                 using (new Kernel(
                     processors,
-                    preProcessors,
-                    filters,
+                    configuration.Watch.Cast<IWatchConfiguration>(),
                     outputFilter))
                 {
                     Console.ReadLine();
