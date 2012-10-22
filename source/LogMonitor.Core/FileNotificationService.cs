@@ -138,7 +138,7 @@ namespace LogMonitor
 
                 string content = this.io.Read(fileName, ref position);
 
-                if (this.fullLines)
+                if (!string.IsNullOrEmpty(content) && this.fullLines)
                 {
                     int lastLineBreak = Math.Max(content.LastIndexOf('\n'), content.LastIndexOf('\r'));
 

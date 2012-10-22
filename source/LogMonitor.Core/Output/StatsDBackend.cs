@@ -45,11 +45,9 @@ namespace LogMonitor.Output
 
             string normalizedType = supportedTypes.First(s => s.Equals(metric.Type, StringComparison.OrdinalIgnoreCase));
 
-            string key = string.IsNullOrEmpty(metricsPrefix)
-                ? metric.Key
-                : metricsPrefix.EnsureLast('.') + metric.Key;
-
-            this.channels[normalizedType].Report(key, (int)metric.Value);
+            this.channels[normalizedType].Report(
+                Helper.BuildKey(metric.Key, metricsPrefix), 
+                (int)metric.Value);
         }
 
         public void Dispose()

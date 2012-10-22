@@ -48,7 +48,14 @@ namespace LogMonitor.Processors
                 if (configuration == null)
                     return null;
 
-                this.cache.Add(filename, configuration);
+                if (this.cache.ContainsKey(filename))
+                {
+                    this.cache[filename] = configuration;
+                }
+                else
+                {
+                    this.cache.Add(filename, configuration);
+                }
             }
 
             // Is already in cache -> return cached configuration.

@@ -13,6 +13,7 @@ namespace LogMonitor.Output
         {
             Lazy<GraphiteBackend> graphite = new Lazy<GraphiteBackend>(() => new GraphiteBackend(graphiteConfiguration));
             Lazy<StatsDBackend> statsD = new Lazy<StatsDBackend>(() => new StatsDBackend(statsDConfiguration));
+            Lazy<ConsoleBackend> console = new Lazy<ConsoleBackend>(() => new ConsoleBackend());
 
             List<OutputTarget> targets = new List<OutputTarget>();
 
@@ -27,6 +28,10 @@ namespace LogMonitor.Output
                 else if ("statsd".Equals(configuration.Target, StringComparison.OrdinalIgnoreCase))
                 {
                     backend = statsD.Value;
+                }
+                else if ("console".Equals(configuration.Target, StringComparison.OrdinalIgnoreCase))
+                {
+                    backend = console.Value;
                 }
                 else
                 {
@@ -49,6 +54,9 @@ namespace LogMonitor.Output
 
             if (statsD.IsValueCreated)
                 backends.Add(statsD.Value);
+
+            if (console.IsValueCreated)
+                backends.Add(console.Value);
 
             var filter = new OutputFilter(targets, backends);
 

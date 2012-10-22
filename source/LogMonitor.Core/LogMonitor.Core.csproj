@@ -70,7 +70,9 @@
     <Compile Include="Helpers\EnumerableExtensions.cs" />
     <Compile Include="Helpers\ExceptionExtensions.cs" />
     <Compile Include="Helpers\StringExtensions.cs" />
+    <Compile Include="Output\ConsoleBackend.cs" />
     <Compile Include="Output\GraphiteBackend.cs" />
+    <Compile Include="Output\Helper.cs" />
     <Compile Include="Output\IOutputBackend.cs" />
     <Compile Include="Output\OutputFactory.cs" />
     <Compile Include="Output\StatsDBackend.cs" />

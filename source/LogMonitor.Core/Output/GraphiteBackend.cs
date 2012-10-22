@@ -40,11 +40,9 @@ namespace LogMonitor.Output
             if (!supportedTypes.Contains(metric.Type, StringComparer.OrdinalIgnoreCase))
                 throw new ArgumentException("Metric type not supported.", "metric");
 
-            string key = string.IsNullOrEmpty(metricsPrefix)
-                ? metric.Key
-                : metricsPrefix.EnsureLast('.') + metric.Key;
-
-            this.graphiteChannel.Report(key, (int)metric.Value);
+            this.graphiteChannel.Report(
+                Helper.BuildKey(metric.Key, metricsPrefix), 
+                (int)metric.Value);
         }
 
         public void Dispose()

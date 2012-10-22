@@ -55,8 +55,8 @@ namespace LogMonitor
 
             using (OutputFilter outputFilter = outputFactory.CreateFilter(
                 configuration.Output.Cast<IOutputConfiguration>(),
-                GraphiteConfiguration.Instance.Graphite,
-                GraphiteConfiguration.Instance.StatsD))
+                GraphiteConfiguration.Instance == null ? null : GraphiteConfiguration.Instance.Graphite,
+                GraphiteConfiguration.Instance == null ? null : GraphiteConfiguration.Instance.StatsD))
             {
                 using (new Kernel(
                     processors,

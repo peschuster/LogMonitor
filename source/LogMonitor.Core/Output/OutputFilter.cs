@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using LogMonitor.Helpers;
 
 namespace LogMonitor.Output
@@ -24,11 +26,38 @@ namespace LogMonitor.Output
             if (this.disposed)
                 throw new ObjectDisposedException(typeof(OutputFilter).Name);
 
-            foreach (OutputTarget target in targets.Where(t => t.IsFileMatch(change.File)))
-            {   
+            var matchedTargets = targets.Where(t => t.IsFileMatch(change.File));
+
+            if (!matchedTargets.Any())
+            {
+                Trace.TraceWarning("Not output conifguration matches the file \"{0}\".", change.File);
+
+                return;
+            }
+
+            List<Metric> processed = new List<Metric>();
+
+            foreach (OutputTarget target in matchedTargets)
+            {
                 metrics
                     .Where(m => target.IsMetricMatch(m))
-                    .Each(m => target.Process(m));
+                    .Each(m => 
+                    { 
+                        target.Process(m);
+                        processed.Add(m);
+                    });
+            }
+
+            var warnings = new StringBuilder();
+
+            foreach (Metric metric in metrics.Except(processed))
+            {
+                warnings.AppendLine("Not output conifguration matches the metric \"{0}\", \"{1}\".".FormatWith(metric.Key, metric.Type));
+            }
+
+            if (warnings.Length > 0)
+            {
+                Trace.TraceWarning(warnings.ToString());
             }
         }
 
