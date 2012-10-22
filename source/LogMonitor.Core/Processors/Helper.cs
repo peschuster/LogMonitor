@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace LogMonitor.Processors
 {
@@ -18,28 +17,6 @@ namespace LogMonitor.Processors
                 return new string[0];
 
             return lineSplit.Split(content);
-        }
-
-        public static string ReadFile(string filename)
-        {
-            Stream stream = null;
-
-            try
-            {
-                stream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
-
-                using (StreamReader reader = new StreamReader(stream))
-                {
-                    stream = null;
-                    
-                    return reader.ReadToEnd();
-                }
-            }
-            finally
-            {
-                if (stream != null)
-                    stream.Dispose();
-            }
         }
     }
 }

@@ -52,7 +52,7 @@ namespace LogMonitor.Output
 
             foreach (Metric metric in metrics.Except(processed))
             {
-                warnings.AppendLine("Not output conifguration matches the metric \"{0}\", \"{1}\".".FormatWith(metric.Key, metric.Type));
+                warnings.AppendLine("Not output configuration matches the metric \"{0}\", \"{1}\".".FormatWith(metric.Key, metric.Type));
             }
 
             if (warnings.Length > 0)
