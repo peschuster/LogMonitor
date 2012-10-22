@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using LogMonitor.Output;
 using LogMonitor.Processors;
 
 namespace LogMonitor
@@ -13,15 +14,15 @@ namespace LogMonitor
 
         private bool disposed;
 
-        public Kernel(IEnumerable<IProcessor> processors, IDictionary<string, IPreProcessor> preProcessors, IDictionary<string, string> filters)
+        public Kernel(IEnumerable<IProcessor> processors, IDictionary<string, IPreProcessor> preProcessors, IDictionary<string, string> filters, OutputFilter outputFilter)
         {
             if (preProcessors == null)
                 throw new ArgumentNullException("preProcessors");
 
             if (processors == null)
                 throw new ArgumentNullException("processors");
-            
-            this.manager = new ChangeManager(processors);
+
+            this.manager = new ChangeManager(processors, outputFilter);
 
             foreach (string path in preProcessors.Keys)
             {

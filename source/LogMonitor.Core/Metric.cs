@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LogMonitor.Processors
+namespace LogMonitor
 {
     public class Metric
     {

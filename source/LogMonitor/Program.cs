@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Graphite.Configuration;
 using LogMonitor.Configuration;
+using LogMonitor.Helpers;
+using LogMonitor.Output;
 using LogMonitor.Processors;
 
 namespace LogMonitor
@@ -24,14 +27,14 @@ namespace LogMonitor
             var preProcessors = new Dictionary<string, IPreProcessor>();
             var filters = new Dictionary<string, string>();
 
-            W3CProcessor w3cProcessor = null;
+            Lazy<W3CProcessor> w3cProcessor = new Lazy<W3CProcessor>(() => new W3CProcessor());
             DefaultPreProcessor preProcessor = new DefaultPreProcessor();
 
             foreach (WatchElement element in configuration.Watch)
             {
                 if (!string.IsNullOrEmpty(element.Type) && "w3c".Equals(element.Type, StringComparison.OrdinalIgnoreCase))
                 {
-                    preProcessors.Add(element.Path, w3cProcessor ?? (w3cProcessor = new W3CProcessor()));
+                    preProcessors.Add(element.Path, w3cProcessor.Value);
                 }
                 else
                 {
@@ -48,18 +51,24 @@ namespace LogMonitor
                 }
             }
 
-            using (new Kernel(
-                processors,
-                preProcessors,
-                filters))
+            var outputFactory = new OutputFactory();
+
+            using (OutputFilter outputFilter = outputFactory.CreateFilter(
+                configuration.Output.Cast<IOutputConfiguration>(),
+                GraphiteConfiguration.Instance.Graphite,
+                GraphiteConfiguration.Instance.StatsD))
             {
-                Console.ReadLine();
+                using (new Kernel(
+                    processors,
+                    preProcessors,
+                    filters,
+                    outputFilter))
+                {
+                    Console.ReadLine();
+                }
             }
 
-            foreach (IDisposable disposable in processors.OfType<IDisposable>())
-            {
-                disposable.Dispose();
-            }
+            processors.OfType<IDisposable>().Each(d => d.Dispose());
         }
     }
 }

@@ -6,6 +6,6 @@ namespace LogMonitor.Processors
     {
         public string[] FieldNames { get; set; }
 
-        public IEnumerable<string[]> Values { get; set; }
+        public IList<string[]> Values { get; set; }
     }
 }

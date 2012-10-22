@@ -61,6 +61,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\IOutputConfiguration.cs" />
     <Compile Include="ContentEventArgs.cs" />
     <Compile Include="FileChange.cs" />
     <Compile Include="FileHandler.cs" />
@@ -69,12 +70,19 @@
     <Compile Include="Helpers\EnumerableExtensions.cs" />
     <Compile Include="Helpers\ExceptionExtensions.cs" />
     <Compile Include="Helpers\StringExtensions.cs" />
+    <Compile Include="Output\GraphiteBackend.cs" />
+    <Compile Include="Output\IOutputBackend.cs" />
+    <Compile Include="Output\OutputFactory.cs" />
+    <Compile Include="Output\StatsDBackend.cs" />
+    <Compile Include="Output\OutputFilter.cs" />
+    <Compile Include="Output\OutputTarget.cs" />
     <Compile Include="ProcessorFactory.cs" />
     <Compile Include="Processors\DefaultPreProcessor.cs" />
     <Compile Include="Processors\Helper.cs" />
     <Compile Include="Processors\IPreProcessor.cs" />
     <Compile Include="Processors\IProcessor.cs" />
-    <Compile Include="Processors\Metric.cs" />
+    <Compile Include="Metric.cs" />
+    <Compile Include="MetricType.cs" />
     <Compile Include="Processors\PowershellProcessor.cs" />
     <Compile Include="Processors\PowershellValidator.cs" />
     <Compile Include="Processors\W3CChange.cs" />
@@ -84,9 +92,7 @@
     <Compile Include="Processors\W3CProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Output\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>

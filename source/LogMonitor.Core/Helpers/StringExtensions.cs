@@ -1,9 +1,21 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 
 namespace LogMonitor.Helpers
 {
     public static class StringExtensions
     {
+        public static string EnsureLast(this string instance, char last)
+        {
+            if (instance == null)
+                throw new ArgumentNullException(instance);
+
+            if (instance.EndsWith(new string(last, 1)))
+                return instance;
+
+            return string.Concat(instance, last);
+        }
+
         /// <summary>
         /// Applies <code>String.Format()</code> to the string with specified paramters.
         /// The format provider defaults to <c>InvariantCulture</c>.

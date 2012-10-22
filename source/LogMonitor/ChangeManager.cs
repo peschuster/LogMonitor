@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using LogMonitor.Output;
 using LogMonitor.Processors;
 
 namespace LogMonitor
@@ -17,24 +18,30 @@ namespace LogMonitor
         private readonly IProcessor[] processors;
 
         private readonly CancellationTokenSource cancellation;
-        
-        private readonly TaskFactory factory;
+
+        private readonly TaskFactory taskFactory;
+
+        private readonly OutputFilter outputFilter;
 
         private bool disposed;
 
-        public ChangeManager(IEnumerable<IProcessor> processors)
+        public ChangeManager(IEnumerable<IProcessor> processors, OutputFilter outputFilter)
         {
             if (processors == null)
                 throw new ArgumentNullException("processors");
 
-            this.cancellation = new CancellationTokenSource();
+            if (outputFilter == null)
+                throw new ArgumentNullException("outputFilter");
 
             this.processors = processors.ToArray();
+            this.outputFilter = outputFilter;
 
-            this.factory = new TaskFactory(this.cancellation.Token);
+            this.cancellation = new CancellationTokenSource();
+
+            this.taskFactory = new TaskFactory(this.cancellation.Token);
             
-            this.factory.StartNew(() => this.ProcessInput(), TaskCreationOptions.LongRunning);
-            this.factory.StartNew(() => this.ProcessMetrics(), TaskCreationOptions.LongRunning);
+            this.taskFactory.StartNew(() => this.ProcessInput(), TaskCreationOptions.LongRunning);
+            this.taskFactory.StartNew(() => this.ProcessMetrics(), TaskCreationOptions.LongRunning);
         }
 
         public void Add(FileChange item)
@@ -95,6 +102,8 @@ namespace LogMonitor
 
                 if (this.cancellation.IsCancellationRequested)
                     return;
+
+                this.outputFilter.Process(item.Change, item.Metrics);
             }
         }
     }
