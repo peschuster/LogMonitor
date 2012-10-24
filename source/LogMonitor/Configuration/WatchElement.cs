@@ -25,6 +25,16 @@ namespace LogMonitor.Configuration
         internal const string BufferTimePropertyName = "bufferTime";
 
         /// <summary>
+        /// The XML name of the <see cref="BufferTime"/> property.
+        /// </summary>
+        internal const string IntervalTimePropertyName = "intervalTime";
+
+        /// <summary>
+        /// The XML name of the <see cref="MaxDaysInactive"/> property.
+        /// </summary>
+        internal const string MaxDaysInactivePropertyName = "maxDaysInactive";
+
+        /// <summary>
         /// Gets or sets the Path.
         /// </summary>        
         [ConfigurationPropertyAttribute(PathPropertyName, IsRequired = true, IsKey = true)]
@@ -62,6 +72,26 @@ namespace LogMonitor.Configuration
         {
             get { return (int)base[BufferTimePropertyName]; }
             set { base[BufferTimePropertyName] = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the IntervalTime.
+        /// </summary>
+        [ConfigurationPropertyAttribute(IntervalTimePropertyName, IsRequired = false, DefaultValue = 5000)]
+        public int IntervalTime
+        {
+            get { return (int)base[IntervalTimePropertyName]; }
+            set { base[IntervalTimePropertyName] = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the MaxDaysInactive.
+        /// </summary>
+        [ConfigurationPropertyAttribute(MaxDaysInactivePropertyName, IsRequired = false, DefaultValue = -1)]
+        public int MaxDaysInactive
+        {
+            get { return (int)base[MaxDaysInactivePropertyName]; }
+            set { base[MaxDaysInactivePropertyName] = value; }
         }
     }
 }

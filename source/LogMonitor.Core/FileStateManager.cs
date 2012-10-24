@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using LogMonitor.Helpers;
 
 namespace LogMonitor
 {
@@ -13,7 +12,7 @@ namespace LogMonitor
 
         private bool disposed;
 
-        public FileStateManager(IEnumerable<FileInfo> files)
+        public FileStateManager(IEnumerable<FileInfo> files, Predicate<FileInfo> inactive = null)
         {
             if (files != null)
             {
@@ -21,7 +20,11 @@ namespace LogMonitor
                 foreach (FileInfo file in files)
                 {
                     this.positions.Add(file.FullName, file.Length);
-                    this.info.Add(file.FullName, file);
+
+                    if (inactive == null || !inactive(file))
+                    {
+                        this.info.Add(file.FullName, file);
+                    }
                 }
             }
         }
@@ -65,14 +68,11 @@ namespace LogMonitor
                 this.positions.Add(fullPath, position);
                 this.info.Add(fullPath, new FileInfo(fullPath));
             }
-        }
 
-        public void UpdatePositions(Func<string, long, long> visitor)
-        {
-            if (visitor == null)
-                throw new ArgumentNullException("visitor");
-
-            this.positions.Each(item => this.positions[item.Key] = visitor(item.Key, item.Value));
+            if (!this.info.ContainsKey(fullPath))
+            {
+                this.info.Add(fullPath, new FileInfo(fullPath));
+            }
         }
 
         public bool RenameFile(string oldPath, string fullPath)

@@ -32,6 +32,9 @@
     <xs:attribute name="path" use="required" type="xs:string" />
     <xs:attribute name="type" use="optional" type="xs:string" />
     <xs:attribute name="filter" use="optional" type="xs:string" />
+    <xs:attribute name="bufferTime" use="optional" type="xs:int" />
+    <xs:attribute name="intervalTime" use="optional" type="xs:int" />
+    <xs:attribute name="maxDaysInactive" use="optional" type="xs:int" />
   </xs:complexType>
   <xs:complexType name="LogMonitor.Configuration.ParserElementCollection">
     <xs:choice minOccurs="0" maxOccurs="unbounded">

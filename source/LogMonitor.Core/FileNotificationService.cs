@@ -30,7 +30,7 @@ namespace LogMonitor
             remove { this.watcher.Changed -= value; }
         }
 
-        public FileNotificationService(DirectoryInfo directory, bool fullLines, string filter, int bufferTime)
+        public FileNotificationService(DirectoryInfo directory, bool fullLines, string filter, int bufferTime, int intervalTime, int maxDaysInactive)
         {
             if (directory == null)
                 throw new ArgumentNullException("directory");
@@ -42,13 +42,20 @@ namespace LogMonitor
 
             var watcher = new FileSystemWatcher(directory.FullName, filter);
             IEnumerable<FileInfo> files = directory.EnumerateFiles(filter);
+
+            Predicate<FileInfo> inactive = null;
+
+            if (maxDaysInactive > 0)
+            {
+                inactive = f => f.LastWriteTimeUtc < DateTime.UtcNow.AddDays(maxDaysInactive * (-1));
+            }
             
             this.io = new FileHandler();
 
-            this.Init(watcher, files, bufferTime);
+            this.Init(watcher, files, bufferTime, intervalTime, inactive);
         }
 
-        public FileNotificationService(FileInfo file, bool fullLines, int bufferTime)
+        public FileNotificationService(FileInfo file, bool fullLines, int bufferTime, int intervalTime)
         {
             if (file == null)
                 throw new ArgumentNullException("file");
@@ -62,7 +69,7 @@ namespace LogMonitor
 
             this.io = new FileHandler();
 
-            this.Init(watcher, new[] { file }, bufferTime);
+            this.Init(watcher, new[] { file }, bufferTime, intervalTime, null);
         }
 
         public void Dispose()
@@ -87,9 +94,9 @@ namespace LogMonitor
             }
         }
 
-        private void Init(FileSystemWatcher watcher, IEnumerable<FileInfo> files, int bufferTime)
+        private void Init(FileSystemWatcher watcher, IEnumerable<FileInfo> files, int bufferTime, int intervalTime, Predicate<FileInfo> inactive)
         {
-            this.states = new FileStateManager(files);
+            this.states = new FileStateManager(files, inactive);
 
             watcher.NotifyFilter = NotifyFilters.FileName | NotifyFilters.Size;
 
@@ -102,7 +109,7 @@ namespace LogMonitor
                 h => watcher.Changed += h,
                 h => watcher.Changed -= h);
 
-            var triggerInterval = TimeSpan.FromSeconds(5);
+            var triggerInterval = TimeSpan.FromMilliseconds(intervalTime);
 
             IObservable<IList<FileSystemEventArgs>> listener2 = Observable.Interval(triggerInterval)
                 .Debug(() => "Interval listener triggered {0}.".FormatWith(DateTime.Now.ToLongTimeString()))
@@ -119,6 +126,8 @@ namespace LogMonitor
             watcher.EnableRaisingEvents = true;
 
             this.watcher = watcher;
+
+            Debug.WriteLine("Initialized \"{0}\" with {1} active files.".FormatWith(watcher.Path, this.states.Files.Count));
         }
 
         private bool SizeChanged(FileInfo file)

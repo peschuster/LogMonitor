@@ -88,12 +88,18 @@ namespace LogMonitor
 
                 if (directory.Exists)
                 {
-                    watcher = new FileNotificationService(directory, true, configuration.Filter ?? "*", configuration.BufferTime);
+                    watcher = new FileNotificationService(
+                        directory, 
+                        true, 
+                        configuration.Filter ?? "*", 
+                        configuration.BufferTime, 
+                        configuration.IntervalTime, 
+                        configuration.MaxDaysInactive);
                 }
             }
             else if (info.Exists)
             {
-                watcher = new FileNotificationService(info, true, configuration.BufferTime);
+                watcher = new FileNotificationService(info, true, configuration.BufferTime, configuration.IntervalTime);
             }
 
             return watcher;

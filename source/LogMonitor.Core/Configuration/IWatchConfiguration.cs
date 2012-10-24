@@ -3,23 +3,27 @@ namespace LogMonitor.Configuration
     public interface IWatchConfiguration
     {
         /// <summary>
-        /// Gets or sets the Path.
+        /// Gets the Path.
         /// </summary>        
         string Path { get; }
 
         /// <summary>
-        /// Gets or sets the Type.
+        /// Gets the Type.
         /// </summary>
         string Type { get; }
 
         /// <summary>
-        /// Gets or sets the Filter.
+        /// Gets the Filter.
         /// </summary>
         string Filter { get; }
 
         /// <summary>
-        /// Gets or sets the BufferTime.
+        /// Gets the BufferTime.
         /// </summary>
         int BufferTime { get; }
+
+        int IntervalTime { get; }
+
+        int MaxDaysInactive { get; }
     }
 }
