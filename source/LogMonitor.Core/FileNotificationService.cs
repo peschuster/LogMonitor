@@ -112,7 +112,7 @@ namespace LogMonitor
             var triggerInterval = TimeSpan.FromMilliseconds(intervalTime);
 
             IObservable<IList<FileSystemEventArgs>> listener2 = Observable.Interval(triggerInterval)
-                .Debug(() => "Interval listener triggered {0}.".FormatWith(DateTime.Now.ToLongTimeString()))
+                // .Debug(() => "Interval listener triggered {0}.".FormatWith(DateTime.Now.ToLongTimeString()))
                 .SelectMany(l => this.states.Files)
                 .Where(this.SizeChanged)
                 .Select(file => new FileSystemEventArgs(WatcherChangeTypes.Changed, file.DirectoryName, file.Name))
