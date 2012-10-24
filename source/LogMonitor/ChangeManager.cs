@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using LogMonitor.Helpers;
 using LogMonitor.Output;
 using LogMonitor.Processors;
 
@@ -70,7 +72,10 @@ namespace LogMonitor
         {
             while (!this.cancellation.IsCancellationRequested)
             {
+                Debug.WriteLine("Input queue: listening...");
+
                 FileChange item = this.inputQueue.Take(this.cancellation.Token);
+                Debug.WriteLine("Input queue: item received...");
 
                 if (this.cancellation.IsCancellationRequested)
                     return;
@@ -78,6 +83,8 @@ namespace LogMonitor
                 IProcessor[] matchingProcessors = this.processors
                     .Where(p => p.IsMatch(item.File))
                     .ToArray();
+
+                Debug.WriteLine("Input queue: {0} matching processors.".FormatWith(matchingProcessors.Length));
 
                 IEnumerable<Metric>[] metrics = new IEnumerable<Metric>[matchingProcessors.Length];
 
@@ -91,6 +98,7 @@ namespace LogMonitor
                     Change = item,
                     Metrics = metrics.SelectMany(m => m).ToArray()
                 });
+                Debug.WriteLine("Input queue: item procesed.");
             }
         }
 
@@ -98,12 +106,16 @@ namespace LogMonitor
         {
             while (!this.cancellation.IsCancellationRequested)
             {
+                Debug.WriteLine("Output queue: listening...");
+
                 ResultContainer item = this.outputQueue.Take(this.cancellation.Token);
+                Debug.WriteLine("Output queue: item received.");
 
                 if (this.cancellation.IsCancellationRequested)
                     return;
 
                 this.outputFilter.Process(item.Change, item.Metrics);
+                Debug.WriteLine("Output queue: item procesed.");
             }
         }
     }

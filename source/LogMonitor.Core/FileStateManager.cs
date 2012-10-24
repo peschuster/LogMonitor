@@ -9,6 +9,8 @@ namespace LogMonitor
     {
         private readonly Dictionary<string, long> positions = new Dictionary<string, long>();
 
+        private readonly Dictionary<string, FileInfo> info = new Dictionary<string, FileInfo>();
+
         private bool disposed;
 
         public FileStateManager(IEnumerable<FileInfo> files)
@@ -19,13 +21,14 @@ namespace LogMonitor
                 foreach (FileInfo file in files)
                 {
                     this.positions.Add(file.FullName, file.Length);
+                    this.info.Add(file.FullName, file);
                 }
             }
         }
 
-        public IList<string> Files
+        public IList<FileInfo> Files
         {
-            get { return new List<string>(this.positions.Keys); }
+            get { return new List<FileInfo>(this.info.Values); }
         }
 
         public long GetPosition(string fullPath)
@@ -38,6 +41,19 @@ namespace LogMonitor
             return 0L;
         }
 
+        public bool SizeChanged(string fullPath)
+        {
+            if (this.positions.ContainsKey(fullPath) && this.info.ContainsKey(fullPath))
+            {
+                FileInfo file = this.info[fullPath];
+                file.Refresh();
+
+                return this.positions[fullPath] != file.Length;
+            }
+
+            return true;
+        }
+
         public void UpdatePosition(string fullPath, long position)
         {
             if (this.positions.ContainsKey(fullPath))
@@ -47,6 +63,7 @@ namespace LogMonitor
             else
             {
                 this.positions.Add(fullPath, position);
+                this.info.Add(fullPath, new FileInfo(fullPath));
             }
         }
 
@@ -60,20 +77,14 @@ namespace LogMonitor
 
         public bool RenameFile(string oldPath, string fullPath)
         {
-            if (!this.positions.ContainsKey(oldPath))
-                return false;
-
-            long position = this.positions[oldPath];
-
-            this.positions.Remove(oldPath);
-            this.positions.Add(fullPath, position);
-
-            return true;
+            return this.MoveEntry(this.positions, oldPath, fullPath)
+                || this.MoveEntry(this.info, oldPath, fullPath);
         }
 
         public bool Remove(string fullPath)
         {
-            return this.positions.Remove(fullPath);
+            return this.positions.Remove(fullPath)
+                || this.info.Remove(fullPath);
         }
 
         public void Dispose()
@@ -88,9 +99,23 @@ namespace LogMonitor
             if (disposing && !this.disposed)
             {
                 this.positions.Clear();
+                this.info.Clear();
 
                 this.disposed = true;
             }
+        }
+
+        private bool MoveEntry<TResult>(Dictionary<string, TResult> dict, string key, string newKey)
+        {
+            if (!dict.ContainsKey(key) || dict.ContainsKey(newKey))
+                return false;
+
+            TResult item = dict[key];
+
+            dict.Remove(key);
+            dict.Add(newKey, item);
+
+            return true;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive.Linq;
 using System.Threading;
 
 namespace LogMonitor.Helpers
@@ -21,6 +22,11 @@ namespace LogMonitor.Helpers
 
                 return action.Retry<TException, TResult>(2 * initialMs, --retries);
             }
+        }
+
+        public static IObservable<TSource> Debug<TSource>(this IObservable<TSource> source, Func<string> message)
+        {
+            return source.Select(s => { System.Diagnostics.Debug.WriteLine(message.Invoke()); return s; });
         }
     }
 }

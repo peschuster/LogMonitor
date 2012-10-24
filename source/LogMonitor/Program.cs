@@ -13,34 +13,47 @@ namespace LogMonitor
     {
         public static void Main()
         {
-            var processorsFactory = new ProcessorFactory();
-
-            LogMonitorConfiguration configuration = LogMonitorConfiguration.Instance;
-
-            var processors = new List<IProcessor>();
-
-            foreach (ParserElement parser in configuration.Parser)
+            try
             {
-                processors.Add(processorsFactory.Create(parser.ScriptPath, parser.Pattern));
-            }
+                var processorsFactory = new ProcessorFactory();
 
-            var outputFactory = new OutputFactory(
-                GraphiteConfiguration.Instance == null ? null : GraphiteConfiguration.Instance.Graphite,
-                GraphiteConfiguration.Instance == null ? null : GraphiteConfiguration.Instance.StatsD);
+                LogMonitorConfiguration configuration = LogMonitorConfiguration.Instance;
 
-            using (OutputFilter outputFilter = outputFactory.CreateFilter(
-                configuration.Output.Cast<IOutputConfiguration>()))
-            {
-                using (new Kernel(
-                    processors,
-                    configuration.Watch.Cast<IWatchConfiguration>(),
-                    outputFilter))
+                var processors = new List<IProcessor>();
+
+                foreach (ParserElement parser in configuration.Parser)
                 {
-                    Console.ReadLine();
+                    processors.Add(processorsFactory.Create(parser.ScriptPath, parser.Pattern));
                 }
-            }
 
-            processors.OfType<IDisposable>().Each(d => d.Dispose());
+                var outputFactory = new OutputFactory(
+                    GraphiteConfiguration.Instance == null ? null : GraphiteConfiguration.Instance.Graphite,
+                    GraphiteConfiguration.Instance == null ? null : GraphiteConfiguration.Instance.StatsD);
+
+                using (OutputFilter outputFilter = outputFactory.CreateFilter(
+                    configuration.Output.Cast<IOutputConfiguration>()))
+                {
+                    using (new Kernel(
+                        processors,
+                        configuration.Watch.Cast<IWatchConfiguration>(),
+                        outputFilter))
+                    {
+                        Console.ReadLine();
+                    }
+                }
+
+                processors.OfType<IDisposable>().Each(d => d.Dispose());
+            }
+            catch (SystemException exception)
+            {
+                var color = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Red;
+
+                Console.WriteLine(exception.Message);
+                Console.ForegroundColor = color;
+
+                Console.WriteLine();
+            }
         }
     }
 }

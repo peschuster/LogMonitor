@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -100,15 +101,17 @@ namespace LogMonitor
                 handler => (sender, e) => { handler(e); },
                 h => watcher.Changed += h,
                 h => watcher.Changed -= h);
-            
-            IObservable<IList<FileSystemEventArgs>> listener2 = Observable.Interval(TimeSpan.FromSeconds(5))
+
+            var triggerInterval = TimeSpan.FromSeconds(5);
+
+            IObservable<IList<FileSystemEventArgs>> listener2 = Observable.Interval(triggerInterval)
+                .Debug(() => "Interval listener triggered {0}.".FormatWith(DateTime.Now.ToLongTimeString()))
                 .SelectMany(l => this.states.Files)
                 .Where(this.SizeChanged)
-                .Select(file => new FileSystemEventArgs(WatcherChangeTypes.Changed, Path.GetDirectoryName(file), Path.GetFileName(file)))
-                .Buffer(TimeSpan.FromMilliseconds(10));
+                .Select(file => new FileSystemEventArgs(WatcherChangeTypes.Changed, file.DirectoryName, file.Name))
+                .Buffer(triggerInterval);
 
             this.subscription = listener
-                .Delay(TimeSpan.FromMilliseconds(10))
                 .Buffer(TimeSpan.FromMilliseconds(bufferTime))
                 .Merge(listener2)
                 .Subscribe(OnObjectChanged);
@@ -118,13 +121,13 @@ namespace LogMonitor
             this.watcher = watcher;
         }
 
-        private bool SizeChanged(string file)
+        private bool SizeChanged(FileInfo file)
         {
-            long position = this.states.GetPosition(file);
+            long position = this.states.GetPosition(file.FullName);
 
-            var info = new FileInfo(file);
+            file.Refresh();
 
-            return info.Length != position;
+            return file.Length != position;
         }
 
         private void OnObjectRenamed(object sender, RenamedEventArgs e)
@@ -134,6 +137,9 @@ namespace LogMonitor
 
         private void OnObjectChanged(IList<FileSystemEventArgs> eventList)
         {
+            if (eventList.Count == 0)
+                return;
+
             foreach (var fileEvent in eventList.GroupBy(l => l.FullPath))
             {
                 // in the mean time there might have been a 'deleted' or 'renamed' event
@@ -151,33 +157,25 @@ namespace LogMonitor
             if (e.ChangeType == WatcherChangeTypes.Created || e.ChangeType == WatcherChangeTypes.Changed)
             {   
                 long position = this.states.GetPosition(fileName);
+                long initialPosition = position;
 
-                var info = new FileInfo(fileName);
+                Func<string> read = () => this.io.Read(fileName, ref position);
+                string content = read.Retry<IOException, string>(4, 2);
 
-                if (info.Length != position)
+                if (!string.IsNullOrEmpty(content) && this.fullLines)
                 {
-                    // Only process, if position changed
+                    int lastLineBreak = Math.Max(content.LastIndexOf('\n'), content.LastIndexOf('\r'));
 
-                    long initialPosition = position;
-
-                    Func<string> read = () => this.io.Read(fileName, ref position);
-                    string content = read.Retry<IOException, string>(4, 2);
-
-                    if (!string.IsNullOrEmpty(content) && this.fullLines)
+                    if (position > (initialPosition + lastLineBreak))
                     {
-                        int lastLineBreak = Math.Max(content.LastIndexOf('\n'), content.LastIndexOf('\r'));
-
-                        if (position > (initialPosition + lastLineBreak))
-                        {
-                            position = initialPosition + lastLineBreak;
-                            content = content.Substring(0, Math.Min(content.LastIndexOf('\n'), content.LastIndexOf('\r')) + 1);
-                        }
+                        position = initialPosition + lastLineBreak;
+                        content = content.Substring(0, Math.Min(content.LastIndexOf('\n'), content.LastIndexOf('\r')) + 1);
                     }
-
-                    this.states.UpdatePosition(fileName, position);
-
-                    this.TriggerContentAdded(fileName, content);
                 }
+
+                this.states.UpdatePosition(fileName, position);
+
+                this.TriggerContentAdded(fileName, content);
             }
             else if (e.ChangeType == WatcherChangeTypes.Deleted)
             {
