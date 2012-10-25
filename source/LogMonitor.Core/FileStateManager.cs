@@ -19,6 +19,7 @@ namespace LogMonitor
                 // Add initial sizes
                 foreach (FileInfo file in files)
                 {
+                    file.Refresh();
                     this.positions.Add(file.FullName, file.Length);
 
                     if (inactive == null || !inactive(file))
