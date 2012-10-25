@@ -19,12 +19,6 @@ namespace LogMonitor
             this.InitializeComponent();
         }
 
-        [Conditional("DEBUG")]
-        public static void Debug()
-        {
-            new WindowsService().OnStart(new string[0]);
-        }
-
         /// <summary>
         /// Called when [start].
         /// </summary>
