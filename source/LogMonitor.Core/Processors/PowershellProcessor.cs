@@ -16,9 +16,9 @@ namespace LogMonitor.Processors
 
         private Runspace runspace;
 
-        private PowerShell shell;
-
         private bool disposed;
+
+        private string script;
 
         public PowershellProcessor(string scriptPath, string filePattern = null)
         {
@@ -38,7 +38,19 @@ namespace LogMonitor.Processors
 
         public IEnumerable<Metric> ParseLine(FileChange change)
         {
-            this.shell
+            PowerShell shell = PowerShell.Create();
+            shell.Runspace = this.runspace;
+
+            shell
+                .AddCommand("Add-Type")
+                .AddParameter("Path", typeof(FileChange).Assembly.Location);
+
+            shell.Invoke();
+
+            shell.AddScript(this.script);
+            shell.Invoke();
+            
+            shell
                 .AddCommand("MetricProcessor")
                 .AddParameter("change", change);
 
@@ -46,13 +58,18 @@ namespace LogMonitor.Processors
 
             try
             {
-                results = this.shell.Invoke();
+                results = shell.Invoke();
             }
             catch (RuntimeException exception)
             {
                 Trace.TraceError(exception.Format());
 
                 yield break;
+            }
+            finally
+            {
+                if (shell != null)
+                    shell.Dispose();
             }
 
             foreach (var obj in results)
@@ -75,9 +92,6 @@ namespace LogMonitor.Processors
         {
             if (disposing && !this.disposed)
             {
-                if (this.shell != null)
-                    this.shell.Dispose();
-
                 if (this.runspace != null)
                     this.runspace.Dispose();
 
@@ -87,22 +101,10 @@ namespace LogMonitor.Processors
 
         private void Initialize(string scriptPath)
         {
-            string script = File.ReadAllText(scriptPath);
+            this.script = File.ReadAllText(scriptPath);
 
             this.runspace = RunspaceFactory.CreateRunspace();
             this.runspace.Open();
-
-            this.shell = PowerShell.Create();
-            this.shell.Runspace = this.runspace;
-
-            this.shell
-                .AddCommand("Add-Type")
-                .AddParameter("Path", typeof(FileChange).Assembly.Location);
-
-            this.shell.Invoke();
-
-            this.shell.AddScript(script);
-            this.shell.Invoke();
         }
     }
 }
