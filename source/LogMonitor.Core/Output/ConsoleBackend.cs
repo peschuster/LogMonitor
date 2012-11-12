@@ -13,7 +13,7 @@ namespace LogMonitor.Output
 
         public void Submit(Metric metric, string metricsPrefix)
         {
-            Console.WriteLine("{0,-40} {1,-8} {2,6} {3,-10}", Helper.BuildKey(metric.Key, metricsPrefix), metric.Type, metric.Value, metric.Timestamp);
+            Console.WriteLine("{0,-40} {1,-8} {2,6}", Helper.BuildKey(metric.Key, metricsPrefix), metric.Type, metric.Value);
         }
     }
 }
