@@ -2,6 +2,8 @@
 
 *LogMonitor* is a combination of *logtail* and [*logster*](https://github.com/etsy/logster), but specifically designed for windows systems. It watches directories or files for changes, extracts metrics from the added content and submits these metrics to a configured backend (*graphite*, *statsd* or *console*).
 
+Extracting metrics from added content is done by *PowerShell* scripts, which can be created or customized at will.
+
 ## Documentation
 
 *LogMonitor* consists of three components:
