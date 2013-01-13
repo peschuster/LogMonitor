@@ -6,7 +6,7 @@ Extracting metrics from added content is done by *PowerShell* scripts, which can
 
 ## Documentation
 
-![](docs/LogMonitorArchitecture.png)
+![Architecture of LogMonitor](https://raw.github.com/peschuster/LogMonitor/master/docs/LogMonitorArchitecture.png)
 
 *LogMonitor* consists of three components:
 
