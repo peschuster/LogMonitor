@@ -1,6 +1,6 @@
 # LogMonitor
 
-*LogMonitor* is a combination of *logtail* and *loggster*. It watches directories or files for changes, parses added content and submits metrics to a configured backend (*graphite*, *statsd* or *console*).
+*LogMonitor* is a combination of *logtail* and [*logster*](https://github.com/etsy/logster), but specifically designed for windows systems. It watches directories or files for changes, extracts metrics from the added content and submits these metrics to a configured backend (*graphite*, *statsd* or *console*).
 
 ## Documentation
 
@@ -45,7 +45,7 @@ Add the configuration section to your `app.config` file:
  * `path` - Path to a directory or file.
  * `filter` - *[optional]*, default: "*". Filter for watched files in directory.
  * `type` - *[optional]*, if `w3c` all lines are split in respective fields. Powershell scripts are provided with an `W3CChange` object.
- * `maxDaysInactive` - *[optional]*, default: -1. If set, only files with an active during the last `x` (configured value) days are watched for changes.
+ * `maxDaysInactive` - *[optional]*, default: -1. If set, only files with activity during the last `x` days (configured value) are watched for changes.
  * `bufferTime` - *[optional]*, default: 500. Time (in ms) for which events by the file system are buffered (i.e. aggregated) before processing.
  * `intervalTime` - *[optional]*, default: 5000. Interval (in ms) of manual checks for changed files (in case file system raised no events).
 
@@ -73,7 +73,7 @@ Add the configuration section to your `app.config` file:
 **Options:**
 
  * `pathPattern` - RegEx pattern applied to log file names, to map output backends to specific files, file types or locations.
- * `type` - RegEx pattern to filter metrics by types.
+ * `type` - RegEx pattern to filter metrics by type.
  * `target` - Name of the backend (`graphite`, `statsd` or `console`).
  * `metricsPrefix` - Prefix applied to all metrics, before sending them to the backend.
 
@@ -100,6 +100,29 @@ To see/store log messages you can simply add a *trace listener* in your configur
         </listeners>
       </trace>
     </system.diagnostics>
+
+## Writing *PowerShell* script parsers
+
+A *PowerShell* script for extracting metrics from added lines must always contain a function with the following signature:
+
+    Function MetricProcessor ([LogMonitor.FileChange] $change)
+    {
+    }
+
+It also must always return a list of `LogMonitor.Metric` objects. Objects of this type can be created by calling `[LogMonitor.Metric]::Create(..)`.
+
+Here is an example for simply returning the number of added lines:
+
+    $metrics = @()
+        
+    if ($change.GetType().FullName -eq "LogMonitor.Processors.W3CChange")
+    {
+		$metrics += [LogMonitor.Metric]::Create('calls', $change.Values.Count, [LogMonitor.MetricType]::Counter)
+    }
+        
+    return $metrics
+
+This example also checks for the type `LogMonitor.Processors.W3CChange` which is passed to the *PowerShell* script for log files of type `w3c`.
 
 ## Planned features
 
