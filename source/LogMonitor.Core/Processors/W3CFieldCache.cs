@@ -7,6 +7,8 @@ namespace LogMonitor.Processors
 {
     internal class W3CFieldCache
     {
+        private readonly object lockObject = new object();
+        
         /// <summary>
         /// Cached field configurations (per file)
         /// </summary>
@@ -27,39 +29,42 @@ namespace LogMonitor.Processors
 
         public string[] Get(string filename, string[] lines)
         {
-            if (!this.cache.ContainsKey(filename)
-                || this.ContainsConfiguration(lines))
+            lock (this.lockObject)
             {
-                // Try to read the configuration from specified files.
-                string[] configuration = this.ParseConfiguration(lines);
-
-                if (configuration == null || configuration.Length == 0)
+                if (!this.cache.ContainsKey(filename)
+                    || this.ContainsConfiguration(lines))
                 {
-                    if (!File.Exists(filename))
-                        throw new ArgumentException("Specified file does not exist.", "filename");
+                    // Try to read the configuration from specified files.
+                    string[] configuration = this.ParseConfiguration(lines);
 
-                    // No configuration is included in specified lines -> read the whole file for a w3c fields line.
-                    IEnumerable<string> linesOfFile = this.ioHandler.ReadLines(filename);
+                    if (configuration == null || configuration.Length == 0)
+                    {
+                        if (!File.Exists(filename))
+                            throw new ArgumentException("Specified file does not exist.", "filename");
 
-                    configuration = this.ParseConfiguration(linesOfFile);
+                        // No configuration is included in specified lines -> read the whole file for a w3c fields line.
+                        IEnumerable<string> linesOfFile = this.ioHandler.ReadLines(filename);
+
+                        configuration = this.ParseConfiguration(linesOfFile);
+                    }
+
+                    // Still no configuration? -> return null (don't cache!)
+                    if (configuration == null)
+                        return null;
+
+                    if (this.cache.ContainsKey(filename))
+                    {
+                        this.cache[filename] = configuration;
+                    }
+                    else
+                    {
+                        this.cache.Add(filename, configuration);
+                    }
                 }
 
-                // Still no configuration? -> return null (don't cache!)
-                if (configuration == null)
-                    return null;
-
-                if (this.cache.ContainsKey(filename))
-                {
-                    this.cache[filename] = configuration;
-                }
-                else
-                {
-                    this.cache.Add(filename, configuration);
-                }
+                // Is already in cache -> return cached configuration.
+                return this.cache[filename];
             }
-
-            // Is already in cache -> return cached configuration.
-            return this.cache[filename];
         }
 
         private bool ContainsConfiguration(IEnumerable<string> lines)
