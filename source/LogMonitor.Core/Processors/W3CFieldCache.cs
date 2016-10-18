@@ -8,7 +8,7 @@ namespace LogMonitor.Processors
     internal class W3CFieldCache
     {
         private readonly object lockObject = new object();
-        
+
         /// <summary>
         /// Cached field configurations (per file)
         /// </summary>
@@ -23,7 +23,7 @@ namespace LogMonitor.Processors
         {
             if (ioHandler == null)
                 throw new ArgumentNullException("ioHandler");
-              
+
             this.ioHandler = ioHandler;
         }
 
